@@ -6,7 +6,8 @@ export const items = [
     model: "Tesla Model S",
     category: "Sedan",
     price: 79990,
-    modelImage: "https://i.pinimg.com/474x/75/f9/8c/75f98c30ca400733a19295829f608c88.jpg",
+    modelImage: "https://i.pinimg.com/564x/40/aa/75/40aa751bae83de7d334c5e10b65b7775.jpg",
+    condition:"New",
     rating: 5,
   },
   {
@@ -16,7 +17,8 @@ export const items = [
     model: "Nissan Leaf",
     category: "Hatchback",
     price: 27990,
-    modelImage: "https://i.pinimg.com/474x/9f/1f/9f/9f1f9f97a38ce3449e267a4d38694ca0.jpg",
+    modelImage: "https://i.pinimg.com/564x/cb/74/34/cb7434cc73055c33b6ab3553c2a231f9.jpg",
+    condition:"Used",
     rating: 5,
   },
   {
@@ -26,7 +28,8 @@ export const items = [
     model: "Porsche Taycan",
     category: "Sport",
     price: 79990,
-    modelImage: "https://i.pinimg.com/474x/a4/8a/5c/a48a5c0213f1abcd494f733cdee2fb12.jpg",
+    modelImage: "https://i.pinimg.com/564x/42/3b/d8/423bd834d2bb5259ec45a921c599a214.jpg",
+    condition:"New",
     rating: 5,
   },
   {
@@ -36,7 +39,8 @@ export const items = [
     model: "BMW i4",
     category: "Sedan",
     price: 55990,
-    modelImage: "https://i.pinimg.com/474x/f9/97/0d/f9970dd9535a68ed3db937f448a27db8.jpg",
+    modelImage: "https://i.pinimg.com/564x/53/89/49/53894941e207990db689e39e140cd900.jpg",
+    condition:"New",
     rating: 5,
   },
   {
@@ -46,7 +50,8 @@ export const items = [
     model: "Ford Mustang Mach-E",
     category: "SUV",
     price: 42990,
-    modelImage: "https://i.pinimg.com/474x/cd/d3/af/cdd3afb7f3acf5c4c71cfee59b239aeb.jpg",
+    modelImage: "https://i.pinimg.com/564x/ee/32/c3/ee32c3c3fdc88b6193a635a50380861f.jpg",
+    condition:"Used",
     rating: 5,
   }
 ];

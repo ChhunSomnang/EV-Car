@@ -33,9 +33,10 @@ const brandList: Brand[] = [
 ];
 
 // Brand Card Component
+// Brand Card Component
 const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
   return (
-    <Link href={`/list/`} passHref>
+    <Link href={{ pathname: `/list/`, query: { brand: brand.name } }} passHref>
       <div className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:cursor-pointer">
         <div className="p-4 text-center">
           <img src={brand.logo} alt={brand.name} className="w-32 h-32 mx-auto mb-2" />
@@ -45,6 +46,7 @@ const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
     </Link>
   );
 };
+
 
 // Brand List Component
 const BrandList: React.FC = () => {
