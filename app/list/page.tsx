@@ -1,24 +1,43 @@
-import React from "react";
-import Menu from "../components/Menu";
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from "react";
+import data from '../assets/alldata.json';
+import ProductCard from "../components/ProductCard";
+import Filter from "../components/filter";
 
-const page = () => {
+interface Item {
+  id: number;
+  model: string;
+  category: string;
+  modelImage?: string;
+  brand: string;
+  price: number;
+  condition: string;
+  rating?: number;
+}
+
+const Page = () => {
+  const [filteredItems, setFilteredItems] = useState<Item[]>(data.allcars); // Initialize with all items
+
+  // Optional: you could update the URL based on filtered items
+  useEffect(() => {
+    // Example: you can store filter state in local storage or URL
+  }, [filteredItems]);
+
   return (
-    <div>
-      <div className="flex justify-center pt-28 my-10">
-        <Image
-          src="https://i.pinimg.com/564x/68/b7/f0/68b7f0a20dde6d9c04d99c2efd47740b.jpg"
-          alt=""
-          width={500}
-          height={500}
-          className="w-[500px] h-[200px] max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl "
-        />
-      </div>
-      <div className="ml-14">
-        <Menu />
-      </div>
+    <div className="flex">
+      <Filter items={data.allcars} setFilteredItems={setFilteredItems} />
+      <main className="w-full md:w-3/4 p-4">
+        <h1 className="text-2xl font-bold text-center mb-6">Electric Cars Gallery</h1>
+        <div className="space-y-6">
+          {filteredItems.length === 0 ? (
+            <p className="text-center text-gray-600">No products found.</p>
+          ) : (
+            filteredItems.map(item => <ProductCard key={item.id} product={item} />)
+          )}
+        </div>
+      </main>
     </div>
   );
 };
 
-export default page;
+export default Page;
