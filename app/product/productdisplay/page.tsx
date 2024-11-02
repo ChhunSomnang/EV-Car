@@ -1,7 +1,7 @@
 // app/productdisplay/page.tsx
 "use client"; // Ensure this runs on the client-side
 import React, { useEffect, useState } from "react";
-import ProductImage from "../components/ProductImage"; // Adjust the import path if necessary
+import ProductImage from "../../components/ProductImage"; // Adjust the import path if necessary
 
 interface CarImage {
   id: number;

@@ -1,4 +1,3 @@
-// components/ProductImage.tsx
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -9,7 +8,7 @@ interface CarImage {
 }
 
 interface ProductImageProps {
-  items: CarImage[];
+  items: CarImage[]; // Expect an array of CarImage
 }
 
 const ProductImage: React.FC<ProductImageProps> = ({ items }) => {

@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Item {
     id: number;
@@ -15,10 +15,11 @@ interface Item {
 interface FilterProps {
     items: Item[];
     setFilteredItems: React.Dispatch<React.SetStateAction<Item[]>>;
+    defaultBrand: string; // Add defaultBrand to the props
 }
 
-const Filter: React.FC<FilterProps> = ({ items, setFilteredItems }) => {
-    const [selectedBrands, setSelectedBrands] = React.useState<string[]>([]);
+const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }) => {
+    const [selectedBrands, setSelectedBrands] = React.useState<string[]>([defaultBrand]);
     const [selectedConditions, setSelectedConditions] = React.useState<string[]>([]);
     const [minPrice, setMinPrice] = React.useState<number | undefined>();
     const [maxPrice, setMaxPrice] = React.useState<number | undefined>();
@@ -52,7 +53,7 @@ const Filter: React.FC<FilterProps> = ({ items, setFilteredItems }) => {
     };
 
     // Use effect to update filtered items whenever filter state changes
-    React.useEffect(() => {
+    useEffect(() => {
         filterItems();
     }, [selectedBrands, selectedConditions, minPrice, maxPrice]);
 
