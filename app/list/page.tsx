@@ -32,7 +32,7 @@ const ListPage: React.FC = () => {
     }, [brandFromQuery]);
 
     return (
-        <div className="flex mt-16">
+        <div className="flex mt-32">
             <Filter items={data.allcars} setFilteredItems={setFilteredItems} defaultBrand={brandFromQuery || ''} />
             <main className="w-full md:w-3/4 p-4">
                 <h1 className="text-2xl font-bold text-center mb-6">Electric Cars Gallery</h1>
