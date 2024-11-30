@@ -77,7 +77,7 @@ const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }
 
             {/* Min Price */}
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Min Price</label>
+                <label className="block text-md font-semibold text-gray-700 mb-2">Min Price</label>
                 <input
                     type="number"
                     value={minPrice || ""}
@@ -89,7 +89,7 @@ const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }
 
             {/* Max Price */}
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Max Price</label>
+                <label className="block text-md font-semibold text-gray-700 mb-2">Max Price</label>
                 <input
                     type="number"
                     value={maxPrice || ""}

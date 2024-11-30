@@ -2,7 +2,8 @@ import React from "react";
 import NavbarLogo from "./NavbarLogo";
 import NavbarSearchbar from "./NavbarSearchbar";
 import User from "./User";
-import AddToCart from "./addtocart"; // Ensure the capitalization matches
+import SellButton from "./SellButton";
+
 
 const Navbar = () => {
   return (
@@ -13,7 +14,7 @@ const Navbar = () => {
           <NavbarSearchbar />
         </div>
         <div className="flex items-center gap-4 mt-4 sm:mt-0">
-          {/*<AddToCart />*/}
+          <SellButton/>
           <User />
         </div>
       </div>
