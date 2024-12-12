@@ -25,6 +25,7 @@ interface Product {
   model: string;
   category: string;
   price: number;
+  year?: number;
   phone?: string; 
   modelImage?: string;
   condition: string;
@@ -82,6 +83,7 @@ const Page: React.FC<{ params: { id: string } }> = ({ params }) => {
         <p className="text-lg text-gray-500 font-semibold">Model: <span className="text-gray-700">{product.model}</span></p>
         <p className="text-lg text-gray-500 font-semibold">Category: <span className="text-gray-700">{product.category}</span></p>
         <p className="text-lg text-gray-500 font-semibold">Condition: <span className="text-gray-700">{product.condition}</span></p>
+        <p className="text-lg text-gray-500 font-semibold">Year: <span className="text-gray-700">{product.year}</span></p>
         <p className="text-2xl font-bold text-red-600">Price: ${product.price.toFixed(2)}</p>
         {product.rating && (
           <p className="text-lg text-yellow-500 font-semibold">Rating: {product.rating} ⭐</p>
