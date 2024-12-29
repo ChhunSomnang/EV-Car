@@ -1,13 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router"; // Use the useRouter hook
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import React, { useEffect, useState, useRef } from "react";
+import { useParams } from "next/navigation";
+import ProductImage from "../../components/ProductImage";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import ProductImage from "../../components/ProductImage";
-import data from "../../assets/alldata.json";
 
-// Fix for custom Leaflet icon URLs
+// Customize the default marker icon to avoid broken images
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -38,41 +36,58 @@ interface Product {
   };
 }
 
-const getCarById = (id: string): Product | undefined => {
-  const car = data.allcars.find((car: Product) => car.id.toString() === id);
-  return car ? { ...car, phone: car.phone || "Contact information not available" } : undefined; // Fallback for phone
+const getCarById = async (id: string): Promise<Product | undefined> => {
+  try {
+    const response = await fetch("/alldata.json");
+    const data = await response.json();
+    return data.allcars.find((car: Product) => car.id.toString() === id);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return undefined;
+  }
 };
 
 const Page: React.FC = () => {
-  const [mounted, setMounted] = useState(false); // State to check if the component is mounted
   const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Track loading state
+  const [loading, setLoading] = useState<boolean>(true);
+  const params = useParams();
+  
+  const id = (Array.isArray(params?.id) ? params?.id[0] : params?.id) || "";
 
+  // Using useRef to track the map initialization
+  const mapRef = useRef<L.Map | null>(null);
+  
   useEffect(() => {
-    setMounted(true); // Set mounted to true once the component is rendered on the client side
-  }, []);
-
-  if (!mounted) {
-    return null; // Render nothing during server-side render
-  }
-
-  const router = useRouter(); // Now it's safe to use useRouter
-
-  useEffect(() => {
-    if (!router.isReady) return; // Wait for router to be ready
-
-    const { id } = router.query; // Access id from the query object
-
-    if (id) {
-      const fetchedProduct = getCarById(id as string); // Cast id to string if needed
+    const fetchProduct = async () => {
+      if (!id) return;
+      setLoading(true);
+      const fetchedProduct = await getCarById(id);
       setProduct(fetchedProduct || null);
-    }
+      setLoading(false);
+    };
 
-    setLoading(false); // Stop loading after the data is fetched
-  }, [router.isReady, router.query]);
+    fetchProduct();
+  }, [id]);
+
+  // Handle map initialization using useEffect
+  useEffect(() => {
+    if (product?.location && !mapRef.current) {
+      mapRef.current = new L.Map("map-container", {
+        center: [product.location.lat, product.location.lng],
+        zoom: 14,
+        zoomControl: false,
+      });
+      
+      new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapRef.current);
+      
+      L.marker([product.location.lat, product.location.lng])
+        .addTo(mapRef.current)
+        .bindPopup(`${product.name} - ${product.brand}`);
+    }
+  }, [product]);
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading indicator while waiting for router
+    return <div>Loading...</div>;
   }
 
   if (!product) {
@@ -89,19 +104,17 @@ const Page: React.FC = () => {
     );
   }
 
-  // Use product location or fallback location if undefined
+  // Set default location if no location data exists
   const center: [number, number] = product.location
     ? [product.location.lat, product.location.lng]
-    : [11.572556, 104.919694]; // Default coordinates if product location is unavailable
+    : [11.572556, 104.919694];
 
   return (
     <div className="mt-36 md:px-8 lg:px-16 xl:px-32 relative flex flex-col lg:flex-row gap-16 bg-gray-50 p-8 rounded-lg shadow-xl shadow-gray-400">
-      {/* Product Image */}
       <div className="w-full lg:w-1/2 lg:sticky top-24 h-max border border-gray-200 rounded-lg overflow-hidden shadow-md">
         <ProductImage items={product.media?.items || []} />
       </div>
 
-      {/* Product Details */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6 text-gray-700">
         <h1 className="text-5xl font-extrabold text-gray-800">{product.name}</h1>
         <p className="text-lg text-gray-500 font-semibold">Brand: <span className="text-gray-700">{product.brand}</span></p>
@@ -114,26 +127,11 @@ const Page: React.FC = () => {
           <p className="text-lg text-yellow-500 font-semibold">Rating: {product.rating} ⭐</p>
         )}
         <p className="text-lg text-gray-500 font-semibold">Phone: <span className="text-gray-700">{product.phone}</span></p>
-        <p><span className="font-bold">Contact Info</span>: Please don't forget to mention that you found this ad on store24.</p>
 
-        {/* Leaflet Map */}
-        <div className="mt-8">
-          <MapContainer
-            zoom={14}
-            center={center}
-            style={{ width: "100%", height: "400px", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            <Marker position={center}>
-              <Popup>
-                {product.name} - {product.brand}
-              </Popup>
-            </Marker>
-          </MapContainer>
-        </div>
+        {/* Map Container (manual map initialization) */}
+        {product.location && (
+          <div id="map-container" className="mt-8 w-full" style={{ height: "400px", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}></div>
+        )}
       </div>
     </div>
   );

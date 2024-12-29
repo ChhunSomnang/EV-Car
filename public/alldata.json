@@ -47,7 +47,12 @@
       "price": 27990,
       "modelImage": "https://i.pinimg.com/564x/cb/74/34/cb7434cc73055c33b6ab3553c2a231f9.jpg",
       "condition": "Used",
-      "rating": 5
+      "rating": 5,
+      "phone": "085 666 666",
+      "location": {
+        "lat": 11.572704,
+        "lng": 104.918800
+      }
     },
     {
       "id": 9,

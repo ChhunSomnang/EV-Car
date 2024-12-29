@@ -1,6 +1,6 @@
 // ProductList.tsx
 import React from 'react';
-import data from '../assets/alldata.json';
+import data from 'public/alldata.json';
 import ProductCard from '../components/ProductCard';
 
 interface Item {

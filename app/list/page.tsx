@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import data from '../assets/alldata.json';
+import data from 'public/alldata.json';
 import ProductCardList from '../components/ProductCardList';
 import Filter from '../components/filter';
 import { useSearchParams } from 'next/navigation';
@@ -18,7 +18,7 @@ interface Item {
 
 const ListPage: React.FC = () => {
     const searchParams = useSearchParams();
-    const brandFromQuery = searchParams?.get('brand') || ''; 
+    const brandFromQuery = searchParams?.get('brand'); // Get the brand from the URL query
     const [filteredItems, setFilteredItems] = useState<Item[]>(data.allcars);
 
     useEffect(() => {
