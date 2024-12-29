@@ -1,8 +1,8 @@
 import Banner from "./components/Banner";
 import BrandList from "./components/BrandList";
-import ProductCard from "./components/CardProduct";
+
 import Menu from "./components/ProductCard";
-import MenuDisplay from "./components/MenuDisplay";
+
 import ProductList from "./components/ProductList";
 import SpecialOffers from "./components/Promotion";
 
@@ -26,7 +26,7 @@ export default function Home() {
       <div className="flex items-center justify-center my-14 text-5xl font-normal">
         Special Offers
       </div>
-      <SpecialOffers/>
+      <SpecialOffers />
       <div className="mx-72">
         <div className="">{/*<Menu />*/}</div>
       </div>

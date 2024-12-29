@@ -1,11 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router"; // Use the useRouter hook
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ProductImage from "../../components/ProductImage";
 import data from "../../assets/alldata.json";
 
+// Fix for custom Leaflet icon URLs
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -26,7 +28,7 @@ interface Product {
   category: string;
   price: number;
   year?: number;
-  phone?: string; 
+  phone?: string;
   modelImage?: string;
   condition: string;
   rating?: number;
@@ -41,14 +43,37 @@ const getCarById = (id: string): Product | undefined => {
   return car ? { ...car, phone: car.phone || "Contact information not available" } : undefined; // Fallback for phone
 };
 
-const Page: React.FC<{ params: { id: string } }> = ({ params }) => {
-  const { id } = params;
+const Page: React.FC = () => {
+  const [mounted, setMounted] = useState(false); // State to check if the component is mounted
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Track loading state
 
   useEffect(() => {
-    const fetchedProduct = getCarById(id);
-    setProduct(fetchedProduct || null);
-  }, [id]);
+    setMounted(true); // Set mounted to true once the component is rendered on the client side
+  }, []);
+
+  if (!mounted) {
+    return null; // Render nothing during server-side render
+  }
+
+  const router = useRouter(); // Now it's safe to use useRouter
+
+  useEffect(() => {
+    if (!router.isReady) return; // Wait for router to be ready
+
+    const { id } = router.query; // Access id from the query object
+
+    if (id) {
+      const fetchedProduct = getCarById(id as string); // Cast id to string if needed
+      setProduct(fetchedProduct || null);
+    }
+
+    setLoading(false); // Stop loading after the data is fetched
+  }, [router.isReady, router.query]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Show loading indicator while waiting for router
+  }
 
   if (!product) {
     return (
@@ -67,7 +92,7 @@ const Page: React.FC<{ params: { id: string } }> = ({ params }) => {
   // Use product location or fallback location if undefined
   const center: [number, number] = product.location
     ? [product.location.lat, product.location.lng]
-    : [11.572556, 104.919694];
+    : [11.572556, 104.919694]; // Default coordinates if product location is unavailable
 
   return (
     <div className="mt-36 md:px-8 lg:px-16 xl:px-32 relative flex flex-col lg:flex-row gap-16 bg-gray-50 p-8 rounded-lg shadow-xl shadow-gray-400">

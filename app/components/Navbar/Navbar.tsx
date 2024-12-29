@@ -1,8 +1,11 @@
 import React from "react";
 import NavbarLogo from "./NavbarLogo";
 import NavbarSearchbar from "./NavbarSearchbar";
-import User from "./User";
+
 import SellButton from "./SellButton";
+import { NavBarButtons } from "./nav-bar-buttons";
+
+
 
 
 const Navbar = () => {
@@ -15,7 +18,8 @@ const Navbar = () => {
         </div>
         <div className="flex items-center gap-4 mt-4 sm:mt-0">
           <SellButton/>
-          <User />
+          
+          <NavBarButtons />
         </div>
       </div>
     </div>

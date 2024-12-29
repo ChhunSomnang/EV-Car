@@ -18,7 +18,7 @@ interface Item {
 
 const ListPage: React.FC = () => {
     const searchParams = useSearchParams();
-    const brandFromQuery = searchParams.get('brand'); // Get the brand from the URL query
+    const brandFromQuery = searchParams?.get('brand') || ''; 
     const [filteredItems, setFilteredItems] = useState<Item[]>(data.allcars);
 
     useEffect(() => {

@@ -25,10 +25,12 @@ const NavbarSearchbar: React.FC = () => {
     setDropdownOpen(false);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
@@ -61,7 +63,7 @@ const NavbarSearchbar: React.FC = () => {
               stroke="currentColor"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2"
+              strokeWidth="2" 
               d="m1 1 4 4 4-4"
             />
           </svg>
@@ -71,7 +73,10 @@ const NavbarSearchbar: React.FC = () => {
             id="dropdown"
             className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-[150px] dark:bg-gray-700"
           >
-            <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
+            <ul
+              className="py-2 text-sm text-gray-700 dark:text-gray-200"
+              aria-labelledby="dropdown-button"
+            >
               {["Mockups", "Templates", "Design", "Logos"].map((category) => (
                 <li key={category}>
                   <button
@@ -87,7 +92,7 @@ const NavbarSearchbar: React.FC = () => {
           </div>
         )}
       </div>
-      <div className="relative" style={{ width: '500px' }}>
+      <div className="relative" style={{ width: "500px" }}>
         <input
           type="search"
           name="name"
@@ -115,10 +120,11 @@ const NavbarSearchbar: React.FC = () => {
               stroke="currentColor"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="2"
+              strokeWidth="2" 
               d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
             />
           </svg>
+
           <span className="sr-only">Search</span>
         </button>
       </div>
