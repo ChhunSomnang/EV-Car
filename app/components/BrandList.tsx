@@ -1,12 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 
+// TypeScript interface for a Brand
 interface Brand {
   id: number;
   name: string;
   logo: string;
 }
 
+// Electric Car Brands Data
 const brandList: Brand[] = [
   { id: 1, name: "Tesla", logo: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png" },
   { id: 2, name: "Nissan", logo: "https://i.pinimg.com/474x/9f/1f/9f/9f1f9f97a38ce3449e267a4d38694ca0.jpg" },
@@ -14,6 +16,7 @@ const brandList: Brand[] = [
   { id: 4, name: "Ford", logo: "https://i.pinimg.com/474x/cd/d3/af/cdd3afb7f3acf5c4c71cfee59b239aeb.jpg" }
 ];
 
+// Brand Card Component
 const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
   return (
     <Link href={{ pathname: "/list", query: { brand: brand.name } }} passHref>
@@ -27,6 +30,7 @@ const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
   );
 };
 
+// Brand List Component
 const BrandList: React.FC = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">

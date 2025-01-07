@@ -2,8 +2,9 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-store text-white mt-2">
+    <footer className="w-full bg-store text-white mt-10">
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        
         {/* Follow Us Section */}
         <div>
           <h3 className="text-2xl font-bold mb-5">Follow Us</h3>
@@ -39,31 +40,11 @@ const Footer = () => {
         <div>
           <h3 className="text-2xl font-bold mb-5">About Store 24</h3>
           <ul className="space-y-2">
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                About Us
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Contact Us
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Membership
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Promote Ad
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Privacy Policy
-              </a>
-            </li>
+            <li><a href="#" className="hover:text-gray-300 transition">About Us</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition">Contact Us</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition">Membership</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition">Promote Ad</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition">Privacy Policy</a></li>
           </ul>
         </div>
 
@@ -71,25 +52,15 @@ const Footer = () => {
         <div>
           <h3 className="text-2xl font-bold mb-5">Useful Information</h3>
           <ul className="space-y-2">
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Safety Tips
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-gray-300 transition">
-                Posting Rules
-              </a>
-            </li>
+            <li><a href="#" className="hover:text-gray-300 transition">Safety Tips</a></li>
+            <li><a href="#" className="hover:text-gray-300 transition">Posting Rules</a></li>
           </ul>
         </div>
       </div>
 
       {/* Bottom Section */}
       <div className="text-center py-4 bg-gray-900">
-        <p className="text-sm text-gray-400">
-          &copy; 2024 Store 24. All Rights Reserved.
-        </p>
+        <p className="text-sm text-gray-400">&copy; 2024 Store 24. All Rights Reserved.</p>
       </div>
     </footer>
   );
