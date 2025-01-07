@@ -19,10 +19,15 @@ interface FilterProps {
 }
 
 const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }) => {
-    const [selectedBrands, setSelectedBrands] = React.useState<string[]>([defaultBrand]);
+    const [selectedBrands, setSelectedBrands] = React.useState<string[]>(
+        defaultBrand ? [defaultBrand] : []
+    );
     const [selectedConditions, setSelectedConditions] = React.useState<string[]>([]);
     const [minPrice, setMinPrice] = React.useState<number | undefined>();
     const [maxPrice, setMaxPrice] = React.useState<number | undefined>();
+
+    // Calculate unique brands dynamically
+    const brands = React.useMemo(() => Array.from(new Set(items.map(item => item.brand))), [items]);
 
     // Function to filter items based on selected criteria
     const filterItems = () => {
@@ -129,7 +134,7 @@ const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }
             {/* Brand Filter */}
             <div className="mb-6 text-xl">
                 <h3 className="text-md font-semibold mb-2">Brand</h3>
-                {["Tesla", "Nissan", "Porsche", "BMW", "Ford"].map((brand) => (
+                {brands.map((brand) => (
                     <label key={brand} className="flex items-center mb-2 text-gray-700">
                         <input
                             type="checkbox"
@@ -138,11 +143,25 @@ const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }
                                 toggleBrand(brand);
                             }}
                             className="mr-2"
+                            aria-label={`Filter by ${brand}`}
                         />
                         {brand}
                     </label>
                 ))}
             </div>
+
+            {/* Reset Filters */}
+            <button
+                onClick={() => {
+                    setSelectedBrands(defaultBrand ? [defaultBrand] : []);
+                    setSelectedConditions([]);
+                    setMinPrice(undefined);
+                    setMaxPrice(undefined);
+                }}
+                className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+                Reset Filters
+            </button>
         </div>
     );
 };

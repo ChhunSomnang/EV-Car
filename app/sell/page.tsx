@@ -108,8 +108,8 @@ const PostForm = () => {
         : "bg-gray-100 border-gray-300 hover:bg-gray-200"
     } focus:ring-2 focus:ring-${color}-500 focus:border-${color}-500`;
   return (
-    <div className="bg-gray-100 p-6">
-      <div className="mt-16 flex flex-col items-center">
+    <div className="bg-gray-100 ">
+      <div className=" flex flex-col items-center">
         <div className="w-full max-w-4xl p-4">
           <h1 className="text-2xl font-bold text-gray-800">Post</h1>
         </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "./components/Header/Navbar";
 import Footer from "./components/Footer";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 
@@ -23,8 +23,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  hero,
 }: Readonly<{
   children: React.ReactNode;
+  hero?: React.ReactNode; // Optional Hero Section
 }>) {
   return (
     <html lang="en">
@@ -32,8 +34,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
+          {/* Navbar */}
           <Navbar />
-          <main>{children}</main>
+
+          {/* Hero Section (conditionally rendered) */}
+          {hero && <div>{hero}</div>}
+
+          {/* Main Content */}
+          <main className="pt-16">{children}</main>
+
+          {/* Footer */}
           <Footer />
         </UserProvider>
       </body>
