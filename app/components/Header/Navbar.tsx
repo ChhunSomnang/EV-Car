@@ -49,15 +49,15 @@ export default function Navbar() {
               </Link>
             </div>
             <div className="relative group">
-              <Link href="/map">
+              <Link href="/chargingstations">
                 <button className="hover:text-primary">Charging Stations</button>
               </Link>
             </div>
-            <Link href="/services" className="hover:text-primary">
-              Services
+            <Link href="/accessories" className="hover:text-primary">
+            Accessories
             </Link>
-            <Link href="/about" className="hover:text-primary">
-              About Us
+            <Link href="/garage" className="hover:text-primary">
+            Our Garages
             </Link>
             <Link href="/resources" className="hover:text-primary">
               Resources
