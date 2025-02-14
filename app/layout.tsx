@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "./components/Header/Navbar";
 import Footer from "./components/Footer";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { Providers } from "./components/providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,19 +34,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserProvider>
-          {/* Navbar */}
-          <Navbar />
+        {" "}
+        <Providers>
+          <UserProvider>
+            {/* Navbar */}
+            <Navbar />
 
-          {/* Hero Section (conditionally rendered) */}
-          {hero && <div>{hero}</div>}
+            {/* Hero Section (conditionally rendered) */}
+            {hero && <div>{hero}</div>}
 
-          {/* Main Content */}
-          <main className="pt-16">{children}</main>
+            {/* Main Content */}
+            <main className="pt-16">{children}</main>
 
-          {/* Footer */}
-          <Footer />
-        </UserProvider>
+            {/* Footer */}
+            <Footer />
+          </UserProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -1,62 +1,46 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAccessories, setFilter, applyFilter } from "../lib/features/accessoriesSlice";
+import { RootState, AppDispatch } from "../lib/store";
 import AccessoriesFilter from "../components/AccessoriesFilter";
-
-type Accessory = {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  brand: string;
-  rating: number;
-  features: string[];
-  image: string;
-};
+import Image from "next/image";
+import { Filter } from "../lib/features/accessoriesSlice"; // Import Filter type
 
 const AccessoriesPage = () => {
-  const [accessories, setAccessories] = useState<Accessory[]>([]);
-  const [filteredAccessories, setFilteredAccessories] = useState<Accessory[]>([]);
-  const [filter, setFilter] = useState({
-    category: "",
-    brand: "",
-    minPrice: 0,
-    maxPrice: Infinity,
-  });
+  const dispatch = useDispatch<AppDispatch>();
+  const { accessories, filteredAccessories, filter, loading, error } = useSelector(
+    (state: RootState) => state.accessories
+  );
+
+  const R2_BUCKET_URL = "https://pub-133f8593b35749f28fa090bc33925b31.r2.dev"; // Replace with your actual R2 URL
+
+  // Fetch the accessories data from the API
+  useEffect(() => {
+    const token = process.env.NEXT_PUBLIC_API_TOKEN; // Ensure you have this in your .env file
+    if (token) {
+      dispatch(fetchAccessories(token));
+    } else {
+      console.error("API token is missing");
+    }
+  }, [dispatch]);
 
   useEffect(() => {
-    const fetchAccessories = async () => {
-      try {
-        const response = await fetch("/accessories.json");
-        const data = await response.json();
-        setAccessories(data);
-        setFilteredAccessories(data);
-      } catch (error) {
-        console.error("Error fetching accessories:", error);
-      }
-    };
-
-    fetchAccessories();
-  }, []);
-
-  useEffect(() => {
-    const applyFilter = () => {
-      const { category, brand, minPrice, maxPrice } = filter;
-      const filtered = accessories.filter((item) => {
-        const isCategoryMatch = category ? item.category === category : true;
-        const isBrandMatch = brand ? item.brand === brand : true;
-        const isPriceMatch = item.price >= minPrice && item.price <= maxPrice;
-        return isCategoryMatch && isBrandMatch && isPriceMatch;
-      });
-      setFilteredAccessories(filtered);
-    };
-
-    applyFilter();
-  }, [filter, accessories]);
+    dispatch(applyFilter());
+  }, [filter, dispatch]);
 
   const categories = [...new Set(accessories.map((item) => item.category))];
   const brands = [...new Set(accessories.map((item) => item.brand))];
+
+  // Handle loading and error states
+  if (loading) {
+    return <p className="text-center text-xl text-gray-600">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-xl text-red-600">{error}</p>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -65,27 +49,31 @@ const AccessoriesPage = () => {
         categories={categories}
         brands={brands}
         filter={filter}
-        setFilter={setFilter}
+        setFilter={(newFilter: Filter) => dispatch(setFilter(newFilter))} // Dispatch setFilter to update Redux store
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredAccessories.map((item) => (
-          <div
-            key={item.id}
-            className="border rounded-lg shadow-md p-4 hover:shadow-lg transition"
-          >
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={200}
-              height={150}
-              className="rounded-md mx-auto"
-            />
-            <h2 className="text-xl font-semibold mt-4">{item.name}</h2>
-            <p className="text-gray-600">Brand: {item.brand}</p>
-            <p className="text-gray-600">Price: ${item.price}</p>
-            <p className="text-yellow-500">Rating: {item.rating} ★</p>
-          </div>
-        ))}
+        {filteredAccessories.map((item) => {
+          const imageUrl = item.image.startsWith("http")
+            ? item.image
+            : `${R2_BUCKET_URL}/${item.image}`;
+
+          return (
+            <div key={item.id} className="border rounded-lg shadow-md p-4 hover:shadow-lg transition">
+              <Image
+                src={imageUrl}
+                alt={item.name}
+                width={200}
+                height={150}
+                className="rounded-md mx-auto"
+                onError={(e) => ((e.target as HTMLImageElement).src = "/fallback-image.png")} // Fallback image on error
+              />
+              <h2 className="text-xl font-semibold mt-4">{item.name}</h2>
+              <p className="text-gray-600">Brand: {item.brand}</p>
+              <p className="text-gray-600">Price: ${item.price}</p>
+              <p className="text-yellow-500">Rating: {item.rating} ★</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

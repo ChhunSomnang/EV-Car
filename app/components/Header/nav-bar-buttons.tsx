@@ -1,73 +1,42 @@
 "use client";
 
-import { useUser } from "@auth0/nextjs-auth0/client";
-import React, { useState, useEffect } from "react";
-import { LoginButton } from "../buttons/login-button";
-import { LogoutButton } from "../buttons/logout-button";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export const NavBarButtons = () => {
-  const { user, isLoading } = useUser();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export default function NavbarLoginButton() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Close dropdown when clicking outside
+  // Initial check for token when the component mounts
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest(".dropdown")) {
-        setIsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // Check if token exists
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const handleAuthAction = () => {
+    if (isAuthenticated) {
+      localStorage.removeItem("token");
+      console.log("Token removed:", localStorage.getItem("token")); // Should log null if removed
+      setIsAuthenticated(false); // Explicitly set to false on logout
+      router.push("/"); // Redirect to homepage after logout
+    } else {
+      // Handle login action
+      router.push("/login"); // Redirect to login page
+
+      // When login is successful, you can trigger the page reload and move to home page
+      setTimeout(() => {
+        localStorage.setItem("token", "your-token-here"); // Set the token after successful login
+        window.location.reload(); // Reload page to reflect the new state
+      }, 500); // Add a small delay to ensure token is set
+    }
+  };
 
   return (
-    <div className="relative">
-      {!user ? (
-        <LoginButton />
-      ) : (
-        <div className="flex items-center space-x-4">
-          {/* User Avatar */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="focus:outline-none dropdown"
-            aria-expanded={isMenuOpen}
-            aria-label="User menu"
-          >
-            <Image
-              src={user.picture || "/default-avatar.png"}
-              alt="User profile"
-              width={45}
-              height={45}
-              className="rounded-full border border-gray-300"
-            />
-          </button>
-
-          {/* Dropdown Menu */}
-          {isMenuOpen && (
-            <div
-              className="absolute top-full right-0 mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50 animate-fade-in dropdown"
-              role="menu"
-              aria-label="User menu dropdown"
-            >
-              <a
-                href="/profile"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                role="menuitem"
-              >
-                Profile
-              </a>
-              <LogoutButton />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+    <button
+      onClick={handleAuthAction}
+      className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+    >
+      {isAuthenticated ? "Logout" : "Login"}
+    </button>
   );
-};
+}

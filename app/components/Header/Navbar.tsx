@@ -1,10 +1,11 @@
 "use client";
 
-import { NavBarButtons } from "./nav-bar-buttons";
+import  NavbarLoginButton  from "./nav-bar-buttons";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import SellingButton from "../buttons/sell-button"
+import Cart from '../Cart'
 
 export default function Navbar() {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -66,7 +67,8 @@ export default function Navbar() {
               Join Us
             </Link>
             <SellingButton/>
-            <NavBarButtons />
+        
+            <NavbarLoginButton/>
           </div>
         </nav>
       </header>

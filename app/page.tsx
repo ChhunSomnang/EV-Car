@@ -1,6 +1,7 @@
 import BrandList from "./components/BrandList";
 import ProductList from "./components/ProductList";
 import SpecialOffers from "./components/Promotion";
+import ListProduct from "./components/ListProduct";
 
 export default function Home() {
   return (
@@ -17,7 +18,7 @@ export default function Home() {
       <div className="flex items-center justify-center my-14 text-5xl font-normal">
         Popular car
       </div>
-      <ProductList />
+      <ListProduct />
       <div className="flex items-center justify-center my-14 text-5xl font-normal">
         Special Offers
       </div>

@@ -1,26 +1,12 @@
-// AccessoriesFilter.tsx
-"use client";
-
 import React from "react";
+import { Filter } from "../lib/features/accessoriesSlice"; // Import the Filter type
 
-type FilterProps = {
+interface FilterProps {
   categories: string[];
   brands: string[];
-  filter: {
-    category: string;
-    brand: string;
-    minPrice: number;
-    maxPrice: number;
-  };
-  setFilter: React.Dispatch<
-    React.SetStateAction<{
-      category: string;
-      brand: string;
-      minPrice: number;
-      maxPrice: number;
-    }>
-  >;
-};
+  filter: Filter;
+  setFilter: (newFilter: Filter) => void; // Expecting a function that takes Filter
+}
 
 const AccessoriesFilter: React.FC<FilterProps> = ({
   categories,
@@ -28,73 +14,76 @@ const AccessoriesFilter: React.FC<FilterProps> = ({
   filter,
   setFilter,
 }) => {
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      [name]: name.includes("Price") ? Number(value) : value,
-    }));
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilter({
+      ...filter,
+      category: e.target.value,
+    });
+  };
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilter({
+      ...filter,
+      brand: e.target.value,
+    });
+  };
+
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter({
+      ...filter,
+      minPrice: Number(e.target.value),
+    });
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter({
+      ...filter,
+      maxPrice: Number(e.target.value),
+    });
   };
 
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4">Filter Accessories</h2>
-      <div className="space-y-4">
-        <div>
-          <label className="block mb-2 font-medium">Category</label>
-          <select
-            name="category"
-            value={filter.category}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-2 font-medium">Brand</label>
-          <select
-            name="brand"
-            value={filter.brand}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">All Brands</option>
-            {brands.map((brand) => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-2 font-medium">Price Range</label>
-          <div className="flex space-x-2">
-            <input
-              type="number"
-              name="minPrice"
-              value={filter.minPrice}
-              onChange={handleInputChange}
-              placeholder="Min"
-              className="w-1/2 p-2 border rounded"
-            />
-            <input
-              type="number"
-              name="maxPrice"
-              value={filter.maxPrice}
-              onChange={handleInputChange}
-              placeholder="Max"
-              className="w-1/2 p-2 border rounded"
-            />
-          </div>
-        </div>
+      <h2 className="text-2xl font-semibold mb-4">Filter</h2>
+      <div className="flex gap-4">
+        <select
+          className="p-2 border rounded"
+          value={filter.category}
+          onChange={handleCategoryChange}
+        >
+          <option value="">Select Category</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <select
+          className="p-2 border rounded"
+          value={filter.brand}
+          onChange={handleBrandChange}
+        >
+          <option value="">Select Brand</option>
+          {brands.map((brand) => (
+            <option key={brand} value={brand}>
+              {brand}
+            </option>
+          ))}
+        </select>
+        <input
+          type="number"
+          className="p-2 border rounded"
+          value={filter.minPrice}
+          onChange={handleMinPriceChange}
+          placeholder="Min Price"
+        />
+        <input
+          type="number"
+          className="p-2 border rounded"
+          value={filter.maxPrice}
+          onChange={handleMaxPriceChange}
+          placeholder="Max Price"
+        />
       </div>
     </div>
   );

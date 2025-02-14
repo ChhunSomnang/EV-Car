@@ -1,15 +1,26 @@
-import { useUser } from "@auth0/nextjs-auth0/client";
-import { useRouter } from "next/navigation"; // Use next/navigation for app router
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function SellingButton() {
-  const { user } = useUser(); // Auth0 user object
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // Convert token to boolean (true if exists, false if null)
+  }, []);
 
   const handleClick = () => {
-    if (user) {
-      router.push("/sell"); // Navigate to the sell page if the user is logged in
+    // Recheck authentication after clicking the button
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // Update the state
+
+    if (token) {
+      router.push("/sell");
     } else {
-      router.push("/api/auth/login"); // Redirect to Auth0 login page if not logged in
+      router.push("/login"); // Redirect to login page
     }
   };
 
