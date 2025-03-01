@@ -4,6 +4,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchProducts } from "../lib/features/productSlice";
 import { RootState, AppDispatch } from "../lib/store";
 import Link from "next/link";
+import { CircularProgress } from "@mui/material";
+
+const R2_BUCKET_URL = "https://pub-133f8593b35749f28fa090bc33925b31.r2.dev";
 
 const ListProduct: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -15,59 +18,59 @@ const ListProduct: React.FC = () => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  console.log("Fetched Products:", products); // Debugging log for product data
-  console.log("Fetch Status:", status); // Debugging log for fetch status
-
-  // Handle loading state
   if (status === "loading") {
-    return <p className="text-center text-xl text-gray-600">Loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress />
+      </div>
+    );
   }
 
-  // Handle failed state
   if (status === "failed") {
     return (
-      <p className="text-center text-xl text-red-600">
+      <div className="text-center mt-4 text-red-600 text-xl">
         {error ? `Error: ${error}` : "Error loading products."}
-      </p>
+      </div>
     );
   }
 
-  // Handle empty products state
   if (!Array.isArray(products) || products.length === 0) {
     return (
-      <p className="text-center text-xl text-gray-600">No products available</p>
+      <div className="text-center mt-4 text-gray-600 text-xl">
+        No products available
+      </div>
     );
   }
 
-  // Render products when status is succeeded
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+    <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
       {products.map((product) => {
-        // If the image URL is a relative path, prepend the Cloudflare R2 endpoint
-        const imageUrl = product.image.startsWith('http')
+        const imageUrl = product.image.startsWith("http")
           ? product.image
-          : `https://pub-133f8593b35749f28fa090bc33925b31.r2.dev/${product.image}`;
-          
+          : `${R2_BUCKET_URL}/${product.image}`;
+
         return (
-          <div
-            key={product.id}
-            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200 ease-in-out"
-          >
-            <img
-              src={imageUrl} // Ensure the image is accessible
-              alt={product.title || "Product"}
-              className="w-full h-48 object-cover rounded-md"
-              onError={(e) => (e.target as HTMLImageElement).src = '/fallback-image.png'} // Fallback image on error
-            />
-            <h3 className="text-xl font-semibold text-gray-800 mt-4">
-              {product.title}
-            </h3>
-            <p className="text-lg text-gray-600 mt-2">${product.price}</p>
-            <Link href={`/product/${product.id}`}>
-              <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 ease-in-out">
-                View
-              </button>
-            </Link>
+          <div key={product.id} className="relative flex flex-col bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-transform duration-300 hover:scale-105">
+            <img className="w-full h-48 object-cover" src={imageUrl} alt={product.title || "Product"} onError={(e) => (e.currentTarget.src = "/fallback-image.png")} />
+
+            <div className="p-4 flex flex-col justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">{product.title}</h3>
+                <div className="mt-2">
+                  <p className="text-gray-800 font-semibold">${product.price.toLocaleString()}</p>
+                </div>
+              </div>
+
+              <div className="mt-2 text-gray-600">
+                <p className="text-sm">Brand: {product.brand}</p>
+              </div>
+
+              <Link href={`/product/${product.id}`}>
+                <button className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors duration-300">
+                  View Product
+                </button>
+              </Link>
+            </div>
           </div>
         );
       })}

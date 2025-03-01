@@ -41,29 +41,29 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="hover:text-primary">
+            <Link href="/" className="">
               Home
             </Link>
             <div className="relative group">
               <Link href="/list">
-                <button className="hover:text-primary">Electric Cars</button>
+                <button className="">Electric Cars</button>
               </Link>
             </div>
             <div className="relative group">
               <Link href="/chargingstations">
-                <button className="hover:text-primary">Charging Stations</button>
+                <button className="">Charging Stations</button>
               </Link>
             </div>
-            <Link href="/accessories" className="hover:text-primary">
+            <Link href="/accessories" className="">
             Accessories
             </Link>
-            <Link href="/garage" className="hover:text-primary">
+            <Link href="/garage" className="">
             Our Garages
             </Link>
-            <Link href="/resources" className="hover:text-primary">
+            <Link href="/resources" className="">
               Resources
             </Link>
-            <Link href="/join-us" className="hover:text-primary">
+            <Link href="/join-us" className="">
               Join Us
             </Link>
             <SellingButton/>

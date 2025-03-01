@@ -1,169 +1,109 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-
-interface Item {
-    id: number;
-    model: string;
-    category: string;
-    modelImage?: string;
-    brand: string;
-    price: number;
-    condition: string;
-    rating?: number;
-}
+import React, { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../lib/store";
+import { setBrands, setConditions, setMinPrice, setMaxPrice, resetFilters, applyFilters } from "../lib/features/productSlice";
 
 interface FilterProps {
-    items: Item[];
-    setFilteredItems: React.Dispatch<React.SetStateAction<Item[]>>;
-    defaultBrand: string; // Add defaultBrand to the props
+  defaultBrand: string;
 }
 
-const Filter: React.FC<FilterProps> = ({ items, setFilteredItems, defaultBrand }) => {
-    const [selectedBrands, setSelectedBrands] = React.useState<string[]>(
-        defaultBrand ? [defaultBrand] : []
-    );
-    const [selectedConditions, setSelectedConditions] = React.useState<string[]>([]);
-    const [minPrice, setMinPrice] = React.useState<number | undefined>();
-    const [maxPrice, setMaxPrice] = React.useState<number | undefined>();
+const Filter: React.FC<FilterProps> = ({ defaultBrand }) => {
+  const dispatch = useDispatch();
+  const { items, selectedBrands, selectedConditions, minPrice, maxPrice } = useSelector(
+    (state: RootState) => state.products
+  );
 
-    // Calculate unique brands dynamically
-    const brands = React.useMemo(() => Array.from(new Set(items.map(item => item.brand))), [items]);
+  const brands = useMemo(() => Array.from(new Set(items.map(item => item.brand))), [items]);
+  const conditions = useMemo(() => Array.from(new Set(items.map(item => item.condition))), [items]);
 
-    // Function to filter items based on selected criteria
-    const filterItems = () => {
-        let filteredItems = items;
+  return (
+    <div className="flex flex-col p-6 bg-white border border-gray-200 rounded-lg shadow-md w-1/4">
+      <h2 className="text-lg font-bold mb-6 text-center">Filter</h2>
 
-        // Filter by selected brands
-        if (selectedBrands.length > 0) {
-            filteredItems = filteredItems.filter(item => selectedBrands.includes(item.brand));
-        }
+      <div className="mb-4">
+        <label className="block text-md font-semibold text-gray-700 mb-2">Min Price</label>
+        <input
+          type="number"
+          value={minPrice || ""}
+          onChange={(e) => {
+            dispatch(setMinPrice(e.target.value ? parseFloat(e.target.value) : undefined));
+            dispatch(applyFilters()); // Apply filters after changing price
+          }}
+          className="w-full border border-gray-300 rounded-md shadow-sm"
+          placeholder="Min Price"
+        />
+      </div>
 
-        // Filter by selected conditions
-        if (selectedConditions.length > 0) {
-            filteredItems = filteredItems.filter(item => selectedConditions.includes(item.condition));
-        }
+      <div className="mb-4">
+        <label className="block text-md font-semibold text-gray-700 mb-2">Max Price</label>
+        <input
+          type="number"
+          value={maxPrice || ""}
+          onChange={(e) => {
+            dispatch(setMaxPrice(e.target.value ? parseFloat(e.target.value) : undefined));
+            dispatch(applyFilters()); // Apply filters after changing price
+          }}
+          className="w-full border border-gray-300 rounded-md shadow-sm"
+          placeholder="Max Price"
+        />
+      </div>
 
-        // Filter by min price
-        if (minPrice !== undefined) {
-            filteredItems = filteredItems.filter(item => item.price >= minPrice);
-        }
+      <div className="mb-6 text-xl">
+        <h3 className="text-md font-semibold mb-2">Condition</h3>
+        {conditions.map(condition => (
+          <label key={condition} className="flex items-center mb-2 text-gray-700">
+            <input
+              type="checkbox"
+              checked={selectedConditions.includes(condition)}
+              onChange={() => {
+                const newConditions = selectedConditions.includes(condition)
+                  ? selectedConditions.filter(c => c !== condition)
+                  : [...selectedConditions, condition];
 
-        // Filter by max price
-        if (maxPrice !== undefined) {
-            filteredItems = filteredItems.filter(item => item.price <= maxPrice);
-        }
+                dispatch(setConditions(newConditions));
+                dispatch(applyFilters()); // Apply filters after changing condition
+              }}
+              className="mr-2"
+            />
+            {condition}
+          </label>
+        ))}
+      </div>
 
-        // Update filtered items
-        setFilteredItems(filteredItems);
-    };
+      <div className="mb-6 text-xl">
+        <h3 className="text-md font-semibold mb-2">Brand</h3>
+        {brands.map(brand => (
+          <label key={brand} className="flex items-center mb-2 text-gray-700">
+            <input
+              type="checkbox"
+              checked={selectedBrands.includes(brand)}
+              onChange={() => {
+                const newBrands = selectedBrands.includes(brand)
+                  ? selectedBrands.filter(b => b !== brand)
+                  : [...selectedBrands, brand];
 
-    // Use effect to update filtered items whenever filter state changes
-    useEffect(() => {
-        filterItems();
-    }, [selectedBrands, selectedConditions, minPrice, maxPrice]);
+                dispatch(setBrands(newBrands));
+                dispatch(applyFilters()); // Apply filters after changing brand
+              }}
+              className="mr-2"
+            />
+            {brand}
+          </label>
+        ))}
+      </div>
 
-    // Function to toggle selected brands
-    const toggleBrand = (brand: string) => {
-        setSelectedBrands(prev =>
-            prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-        );
-    };
-
-    // Function to toggle selected conditions
-    const toggleCondition = (condition: string) => {
-        setSelectedConditions(prev =>
-            prev.includes(condition) ? prev.filter(c => c !== condition) : [...prev, condition]
-        );
-    };
-
-    return (
-        <div className="flex flex-col p-6 bg-white border border-gray-200 rounded-lg shadow-md w-1/4">
-            <h2 className="text-lg font-bold mb-6 text-center">Filter</h2>
-
-            {/* Min Price */}
-            <div className="mb-4">
-                <label className="block text-md font-semibold text-gray-700 mb-2">Min Price</label>
-                <input
-                    type="number"
-                    value={minPrice || ""}
-                    onChange={(e) => setMinPrice(e.target.value ? parseFloat(e.target.value) : undefined)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Min Price"
-                />
-            </div>
-
-            {/* Max Price */}
-            <div className="mb-4">
-                <label className="block text-md font-semibold text-gray-700 mb-2">Max Price</label>
-                <input
-                    type="number"
-                    value={maxPrice || ""}
-                    onChange={(e) => setMaxPrice(e.target.value ? parseFloat(e.target.value) : undefined)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Max Price"
-                />
-            </div>
-
-            {/* Condition Filter */}
-            <div className="mb-6 text-xl">
-                <h3 className="text-md font-semibold mb-2">Condition</h3>
-                <label className="flex items-center mb-2 text-gray-700">
-                    <input
-                        type="checkbox"
-                        checked={selectedConditions.includes("New")}
-                        onChange={() => {
-                            toggleCondition("New");
-                        }}
-                        className="mr-2"
-                    />
-                    New
-                </label>
-                <label className="flex items-center mb-2 text-gray-700">
-                    <input
-                        type="checkbox"
-                        checked={selectedConditions.includes("Used")}
-                        onChange={() => {
-                            toggleCondition("Used");
-                        }}
-                        className="mr-2"
-                    />
-                    Used
-                </label>
-            </div>
-
-            {/* Brand Filter */}
-            <div className="mb-6 text-xl">
-                <h3 className="text-md font-semibold mb-2">Brand</h3>
-                {brands.map((brand) => (
-                    <label key={brand} className="flex items-center mb-2 text-gray-700">
-                        <input
-                            type="checkbox"
-                            checked={selectedBrands.includes(brand)}
-                            onChange={() => {
-                                toggleBrand(brand);
-                            }}
-                            className="mr-2"
-                            aria-label={`Filter by ${brand}`}
-                        />
-                        {brand}
-                    </label>
-                ))}
-            </div>
-
-            {/* Reset Filters */}
-            <button
-                onClick={() => {
-                    setSelectedBrands(defaultBrand ? [defaultBrand] : []);
-                    setSelectedConditions([]);
-                    setMinPrice(undefined);
-                    setMaxPrice(undefined);
-                }}
-                className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-                Reset Filters
-            </button>
-        </div>
-    );
+      <button
+        onClick={() => {
+          dispatch(resetFilters()); // Reset all filters
+          dispatch(applyFilters()); // Apply filters after reset
+        }}
+        className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      >
+        Reset Filters
+      </button>
+    </div>
+  );
 };
 
 export default Filter;
