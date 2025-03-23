@@ -1,5 +1,4 @@
 import BrandList from "./components/BrandList";
-import ProductList from "./components/ProductList";
 import SpecialOffers from "./components/Promotion";
 import ListProduct from "./components/ListProduct";
 

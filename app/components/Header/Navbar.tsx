@@ -1,15 +1,18 @@
 "use client";
 
-import  NavbarLoginButton  from "./nav-bar-buttons";
+import NavbarLoginButton from "./nav-bar-buttons";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import SellingButton from "../buttons/sell-button"
-import Cart from '../Cart'
+import SellingButton from "../buttons/sell-button";
+import { useSelector } from "react-redux";
+import { RootState } from "app/lib/store";
 
 export default function Navbar() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const pathname = usePathname(); // Get the current route
+
+  const cartItems = useSelector((state: RootState) => state.cart.items); // Access cart items from Redux store
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,40 +44,39 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/" className="">
-              Home
-            </Link>
+            <Link href="/">Home</Link>
             <div className="relative group">
               <Link href="/list">
-                <button className="">Electric Cars</button>
+                <button>Electric Cars</button>
               </Link>
             </div>
             <div className="relative group">
               <Link href="/chargingstations">
-                <button className="">Charging Stations</button>
+                <button>Charging Stations</button>
               </Link>
             </div>
-            <Link href="/accessories" className="">
-            Accessories
+            <Link href="/accessories">Accessories</Link>
+            <Link href="/garage">Our Garages</Link>
+            <Link href="/resources">Resources</Link>
+            <Link href="/join-us">Join Us</Link>
+            <SellingButton />
+            <NavbarLoginButton />
+
+            {/* Cart Icon */}
+            <Link href="/cart" className="relative flex items-center space-x-2 text-white">
+              <span className="text-xl">🛒</span>
+              {cartItems.length > 0 && (
+                <span className="absolute top-0 right-0 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartItems.length}
+                </span>
+              )}
             </Link>
-            <Link href="/garage" className="">
-            Our Garages
-            </Link>
-            <Link href="/resources" className="">
-              Resources
-            </Link>
-            <Link href="/join-us" className="">
-              Join Us
-            </Link>
-            <SellingButton/>
-        
-            <NavbarLoginButton/>
           </div>
         </nav>
       </header>
 
       {/* Hero Section */}
-      {pathname === "/" && ( // Only render Hero Section on the homepage
+      {pathname === "/" && (
         <div className="relative h-screen bg-gray-100">
           {/* Background Image */}
           <div
