@@ -26,6 +26,12 @@
       "address": "HW2V+W2P D.I. Riviera, Koh Pich St, Phnom Penh 12301",
       "status": "Available",
       "position": [11.552226, 104.942565]
+    },
+    {
+      "id": 5,
+      "name": "Battambang EV Charging Station",
+      "address": "National Road 5, Battambang",
+      "status": "Available",
+      "position": [13.096069, 103.199076]
     }
-   
   ]

@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Define the types for the accessories and filter state
 export interface Accessory {
   id: number;
   name: string;
@@ -13,11 +12,11 @@ export interface Accessory {
 }
 
 export interface Filter {
-    category: string;
-    brand: string;
-    minPrice: number;
-    maxPrice: number;
-  }
+  category: string;
+  brand: string;
+  minPrice: number;
+  maxPrice: number;
+}
 
 interface AccessoriesState {
   accessories: Accessory[];
@@ -27,7 +26,6 @@ interface AccessoriesState {
   error: string | null;
 }
 
-// Initial state
 const initialState: AccessoriesState = {
   accessories: [],
   filteredAccessories: [],
@@ -41,27 +39,11 @@ const initialState: AccessoriesState = {
   error: null,
 };
 
-// Create the async thunk for fetching accessories
 export const fetchAccessories = createAsyncThunk(
   "accessories/fetchAccessories",
-  async (token: string) => {
-    const response = await axios.get(
-      "https://inventoryapi-367404119922.asia-southeast1.run.app/Accessory",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data.data.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      price: item.weight, // If price is weight, change this to price if needed
-      brand: item.brand,
-      rating: item.rating,
-      image: item.image, // Image is the object key (filename) in R2
-    }));
+  async () => {
+    const response = await axios.get("/accessories.json");
+    return response.data;
   }
 );
 

@@ -1,31 +1,55 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// Define the Product interface based on the provided JSON structure
 export interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  image: string;
-  eCurrencyType: string;
-  isFeatured: boolean;
-  location: string;
-  model: string;
-  color: string;
-  condition: string;
-  categoryId: number;
-  category: string;
-  brandId: number;
-  brand: string;
-  skuId: number;
-  sku: string;
+  properties: any;
+  productType: string;
+  code: string;
+  manufacturerPartNumber: string;
+  gtin: string;
+  name: string;
+  catalogId: string;
+  categoryId: string;
+  outline: string;
+  path: string;
+  titularItemId: string;
+  mainProductId: string;
+  isActive: boolean;
+  isBuyable: boolean;
+  trackInventory: boolean;
+  indexingDate: string; // Assuming ISO date format
+  maxQuantity: number;
+  minQuantity: number;
+  packSize: number;
+  startDate: string; // Assuming ISO date format
+  endDate: string; // Assuming ISO date format
+  packageType: string;
+  weightUnit: string;
+  weight: number;
+  measureUnit: string;
+  height: number;
+  length: number;
+  width: number;
+  enableReview: boolean;
+  maxNumberOfDownload: number;
+  downloadExpiration: string; // Assuming ISO date format
+  downloadType: string;
+  hasUserAgreement: boolean;
+  shippingType: string;
+  taxType: string;
+  vendor: string;
+  priority: number;
+  outerId: string;
+  imgSrc: string;
+  id: string;
 }
 
 interface ProductState {
   items: Product[];
   filteredItems: Product[];
-  selectedBrands: string[];
-  selectedConditions: string[];
+  selectedVendors: string[]; // Updated for filtering by vendor
+  selectedCategories: string[]; // Updated for filtering by category
   minPrice?: number;
   maxPrice?: number;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -35,8 +59,8 @@ interface ProductState {
 const initialState: ProductState = {
   items: [],
   filteredItems: [],
-  selectedBrands: [],
-  selectedConditions: [],
+  selectedVendors: [],
+  selectedCategories: [],
   minPrice: undefined,
   maxPrice: undefined,
   status: "idle",
@@ -46,40 +70,76 @@ const initialState: ProductState = {
 // Async thunk for fetching products
 export const fetchProducts = createAsyncThunk("products/fetch", async (_, thunkAPI) => {
   try {
-    const token = process.env.NEXT_PUBLIC_API_TOKEN; // Use environment variable
-    const response = await axios.get(
-      "https://inventoryapi-367404119922.asia-southeast1.run.app/Product",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const token = process.env.NEXT_PUBLIC_API_TOKEN;
 
-    const products = response.data.data.map((car: any) => ({
-      id: car.id,
-      title: car.title,
-      description: car.description,
-      price: car.price,
-      image: car.image,
-      eCurrencyType: car.eCurrencyType,
-      isFeatured: car.isFeatured,
-      location: car.location,
-      model: car.model,
-      color: car.color,
-      condition: car.condition,
+    // Validate API token
+    if (!token) {
+      throw new Error("API token is missing. Please check your environment variables.");
+    }
+
+    // Fetch data from the API
+    const response = await axios.get("/product.json", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Map the API response to the Product interface
+    const products = response.data.map((car: any) => ({
+      productType: car.productType,
+      code: car.code,
+      manufacturerPartNumber: car.manufacturerPartNumber,
+      gtin: car.gtin,
+      name: car.name,
+      catalogId: car.catalogId,
       categoryId: car.categoryId,
-      category: car.category,
-      brandId: car.brandId,
-      brand: car.brand,
-      skuId: car.skuId,
-      sku: car.sku,
+      outline: car.outline,
+      path: car.path,
+      titularItemId: car.titularItemId,
+      mainProductId: car.mainProductId,
+      isActive: car.isActive,
+      isBuyable: car.isBuyable,
+      trackInventory: car.trackInventory,
+      indexingDate: car.indexingDate,
+      maxQuantity: car.maxQuantity,
+      minQuantity: car.minQuantity,
+      packSize: car.packSize,
+      startDate: car.startDate,
+      endDate: car.endDate,
+      packageType: car.packageType,
+      weightUnit: car.weightUnit,
+      weight: car.weight,
+      measureUnit: car.measureUnit,
+      height: car.height,
+      length: car.length,
+      width: car.width,
+      enableReview: car.enableReview,
+      maxNumberOfDownload: car.maxNumberOfDownload,
+      downloadExpiration: car.downloadExpiration,
+      downloadType: car.downloadType,
+      hasUserAgreement: car.hasUserAgreement,
+      shippingType: car.shippingType,
+      taxType: car.taxType,
+      vendor: car.vendor,
+      priority: car.priority,
+      outerId: car.outerId,
+      imgSrc: car.imgSrc,
+      id: car.id,
     }));
 
     return products;
   } catch (error: any) {
-    const errorMessage = error.response?.data || "API request failed";
-    console.error("API Error:", error.response?.status, error.response?.data);
+    let errorMessage;
+
+    // Handle network errors or CORS issues
+    if (!error.response) {
+      errorMessage = error.message || "Network error or invalid API endpoint.";
+    } else {
+      // Handle server-side errors with a valid response
+      errorMessage = error.response?.data?.message || error.response?.data || "API request failed";
+    }
+
+    console.error("API Error:", errorMessage);
     return thunkAPI.rejectWithValue(errorMessage);
   }
 });
@@ -88,11 +148,11 @@ const productSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-    setBrands: (state, action: PayloadAction<string[]>) => {
-      state.selectedBrands = action.payload;
+    setVendors: (state, action: PayloadAction<string[]>) => {
+      state.selectedVendors = action.payload;
     },
-    setConditions: (state, action: PayloadAction<string[]>) => {
-      state.selectedConditions = action.payload;
+    setCategories: (state, action: PayloadAction<string[]>) => {
+      state.selectedCategories = action.payload;
     },
     setMinPrice: (state, action: PayloadAction<number | undefined>) => {
       state.minPrice = action.payload;
@@ -101,8 +161,8 @@ const productSlice = createSlice({
       state.maxPrice = action.payload;
     },
     resetFilters: (state) => {
-      state.selectedBrands = [];
-      state.selectedConditions = [];
+      state.selectedVendors = [];
+      state.selectedCategories = [];
       state.minPrice = undefined;
       state.maxPrice = undefined;
       state.filteredItems = state.items; // Reset to all products
@@ -110,23 +170,23 @@ const productSlice = createSlice({
     applyFilters: (state) => {
       let filtered = state.items;
 
-      // Apply selected brand filter
-      if (state.selectedBrands.length > 0) {
-        filtered = filtered.filter((item) => state.selectedBrands.includes(item.brand));
+      // Apply selected vendor filter
+      if (state.selectedVendors.length > 0) {
+        filtered = filtered.filter((item) => state.selectedVendors.includes(item.vendor));
       }
 
-      // Apply selected condition filter
-      if (state.selectedConditions.length > 0) {
-        filtered = filtered.filter((item) => state.selectedConditions.includes(item.condition));
+      // Apply selected category filter
+      if (state.selectedCategories.length > 0) {
+        filtered = filtered.filter((item) => state.selectedCategories.includes(item.categoryId));
       }
 
       // Apply price filters if defined
       if (state.minPrice !== undefined) {
-        filtered = filtered.filter((item) => item.price >= (state.minPrice ?? 0)); // Default to 0 if undefined
+        filtered = filtered.filter((item) => item.weight >= (state.minPrice ?? 0)); // Example using weight as "price"
       }
 
       if (state.maxPrice !== undefined) {
-        filtered = filtered.filter((item) => item.price <= (state.maxPrice ?? Infinity)); // Default to Infinity if undefined
+        filtered = filtered.filter((item) => item.weight <= (state.maxPrice ?? Infinity)); // Example using weight as "price"
       }
 
       // Debugging log for filtered items
@@ -153,5 +213,7 @@ const productSlice = createSlice({
   },
 });
 
-export const { setBrands, setConditions, setMinPrice, setMaxPrice, resetFilters, applyFilters } = productSlice.actions;
+export const { setVendors, setCategories, setMinPrice, setMaxPrice, resetFilters, applyFilters } =
+  productSlice.actions;
+
 export default productSlice.reducer;

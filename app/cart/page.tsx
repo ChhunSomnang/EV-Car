@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "app/lib/store";
 import { loadCartFromStorage, removeFromCart, updateQuantity } from "app/lib/features/store/cartSlice";
+import { Button } from "@/components/ui/button"
+import Link from "next/link";
 
 const CartPage = () => {
   const cartProducts = useSelector((state: RootState) => state.cart.items);
@@ -103,6 +105,12 @@ const CartPage = () => {
           Total: {totalPrice.toFixed(2)}{" "}
           {cartProducts[0]?.eCurrencyType || ""}
         </h2>
+      </div>
+      <div className="flex justify-center bg-">
+
+      <Link href="/checkout/shipping" passHref>
+          <Button className="bg-black text-white">Check Out</Button>
+        </Link>
       </div>
     </div>
   );

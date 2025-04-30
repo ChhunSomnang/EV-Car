@@ -13,6 +13,7 @@ export default function Navbar() {
   const pathname = usePathname(); // Get the current route
 
   const cartItems = useSelector((state: RootState) => state.cart.items); // Access cart items from Redux store
+  const [isClient, setIsClient] = useState(false); // Track if the component is mounted on the client
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +21,7 @@ export default function Navbar() {
     };
 
     window.addEventListener("scroll", handleScroll);
+    setIsClient(true); // Mark the component as mounted on the client
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -38,34 +40,75 @@ export default function Navbar() {
       >
         <nav className="container mx-auto flex items-center justify-between px-4 py-3">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold">
+          <Link href="/" className="text-2xl font-bold hover:text-sky-500 transition-colors">
             EV Car
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/">Home</Link>
+            <Link
+              href="/"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Home
+            </Link>
             <div className="relative group">
-              <Link href="/list">
+              <Link
+                href="/list"
+                className="hover:text-sky-500 transition-colors"
+              >
                 <button>Electric Cars</button>
               </Link>
             </div>
             <div className="relative group">
-              <Link href="/chargingstations">
+              <Link
+                href="/chargingstations"
+                className="hover:text-sky-500 transition-colors"
+              >
                 <button>Charging Stations</button>
               </Link>
             </div>
-            <Link href="/accessories">Accessories</Link>
-            <Link href="/garage">Our Garages</Link>
-            <Link href="/resources">Resources</Link>
-            <Link href="/join-us">Join Us</Link>
+            <Link
+              href="/accessories"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Accessories
+            </Link>
+            <Link
+              href="/garage"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Our Garages
+            </Link>
+            <Link
+              href="/catalog"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Catalog
+            </Link>
+            <Link
+              href="/favorite"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Favorite
+            </Link>
+            <Link
+              href="/compare"
+              className="hover:text-sky-500 transition-colors"
+            >
+              Compare
+            </Link>
             <SellingButton />
             <NavbarLoginButton />
 
             {/* Cart Icon */}
-            <Link href="/cart" className="relative flex items-center space-x-2 text-white">
+            <Link
+              href="/cart"
+              className="relative flex items-center space-x-2 hover:text-sky-500 transition-colors"
+            >
               <span className="text-xl">🛒</span>
-              {cartItems.length > 0 && (
+              {/* Only render the cart badge on the client side */}
+              {isClient && cartItems.length > 0 && (
                 <span className="absolute top-0 right-0 text-xs bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
                   {cartItems.length}
                 </span>
@@ -82,7 +125,8 @@ export default function Navbar() {
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url('https://i.pinimg.com/736x/49/08/7c/49087cda310d2dad798b53f5b1817830.jpg')`,
+              backgroundImage:
+                "url('https://i.pinimg.com/736x/49/08/7c/49087cda310d2dad798b53f5b1817830.jpg')",
             }}
           ></div>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
@@ -120,7 +164,7 @@ export default function Navbar() {
                 placeholder="Features (e.g., fast charging)"
                 className="px-4 py-2 w-full focus:outline-none"
               />
-              <button className="bg-sky-400 text-white px-6 py-2 rounded shadow">
+              <button className="bg-sky-400 text-white px-6 py-2 rounded shadow hover:bg-sky-500 transition-colors">
                 Search
               </button>
             </div>

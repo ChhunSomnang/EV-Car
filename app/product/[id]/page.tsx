@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
-import { addToCart } from "app/lib/features/store/cartSlice"; // ✅ Import the action
+import { addToCart } from "app/lib/features/store/cartSlice"; // Cart action
+import {
+  setVendors,
+  setCategories,
+  applyFilters,
+} from "app/lib/features/productSlice";
 import "leaflet/dist/leaflet.css";
 
 const R2_BUCKET_URL = "https://pub-133f8593b35749f28fa090bc33925b31.r2.dev";
 
+// Ensure Product interface matches the one in productSlice
 interface Product {
   id: string;
   title: string;
@@ -36,6 +42,7 @@ const ProductDetail = () => {
   const dispatch = useDispatch();
   const token = process.env.NEXT_PUBLIC_API_TOKEN;
 
+  // Fetch product details from API
   useEffect(() => {
     if (!productId) {
       setError("Product ID is missing!");
@@ -50,43 +57,68 @@ const ProductDetail = () => {
 
     const fetchProduct = async () => {
       try {
-        const response = await fetch(
-          `https://inventoryapi-367404119922.asia-southeast1.run.app/Product/${productId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-    
+        const response = await fetch(`/product.json`, { // Use the same endpoint as productSlice
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    
+
         const data = await response.json();
-        console.log("API Response:", data); // Debugging line
-    
-        // Add the `id` field manually using the `productId` from the URL
-        const productData = {
-          ...data,
-          id: productId, // Use the `productId` from the URL as the `id`
+
+        // Find the product with the matching ID
+        const productData = data.find((item: any) => item.id === productId);
+
+        if (!productData) {
+          throw new Error("Product not found");
+        }
+
+        // Map the API response to the Product interface
+        const formattedProduct = {
+          id: productData.id,
+          title: productData.name, // Assuming 'name' maps to 'title'
+          description: productData.description || "No description available",
+          brand: productData.vendor || "Unknown",
+          category: productData.categoryId || "Uncategorized",
+          model: productData.manufacturerPartNumber || "N/A",
+          color: productData.color || "N/A",
+          condition: productData.condition || "New",
+          price: productData.weight || 0, // Example placeholder for price
+          eCurrencyType: "USD", // Default currency
+          image: productData.imgSrc || "/default-image.png",
+          rating: productData.rating || 0,
+          availability: productData.isBuyable ? "In Stock" : "Out of Stock",
+          dimensions: `${productData.length} x ${productData.width} x ${productData.height}`,
+          manufacturer: productData.vendor || "Unknown",
         };
-    
-        setProduct(productData);
+
+        setProduct(formattedProduct);
+
+        // Dispatch actions to update filters in Redux
+        if (formattedProduct.category) {
+          dispatch(setCategories([formattedProduct.category]));
+        }
+        if (formattedProduct.manufacturer) {
+          dispatch(setVendors([formattedProduct.manufacturer]));
+        }
       } catch (err) {
-        setError(`Failed to load product: ${err instanceof Error ? err.message : "Unknown error"}`);
+        setError(
+          `Failed to load product: ${
+            err instanceof Error ? err.message : "Unknown error"
+          }`
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, token, dispatch]);
 
-  useEffect(() => {
-  console.log("Product state:", product); // Debugging line
-}, [product]);
   const handleAddToCart = () => {
     if (!product) {
       console.error("Error: Product is null!");
@@ -95,7 +127,7 @@ const ProductDetail = () => {
 
     const newCartItem = {
       id: product.id,
-      title: product.title, // Use 'title' instead of 'name'
+      title: product.title,
       price: product.price,
       image: product.image.startsWith("http")
         ? product.image
@@ -142,13 +174,13 @@ const ProductDetail = () => {
 
   return (
     <div className="md:px-8 lg:px-16 xl:px-32 flex flex-col lg:flex-row gap-16 bg-gray-50 p-8 rounded-lg shadow-xl">
-      <div className="w-full lg:w-1/2 lg:sticky top-24 h-max border border-gray-200 rounded-lg overflow-hidden shadow-md">
+            <div className="w-full lg:w-1/2 lg:sticky top-24 max-h-[500px] border border-gray-200 rounded-lg overflow-hidden shadow-md">
         <Image
           src={imageUrl}
           alt={product.title}
-          width={500}
-          height={500}
-          className="w-full h-auto rounded-lg"
+          width={400}
+          height={400}
+          className="w-full h-auto rounded-lg object-contain"
           priority
         />
       </div>
@@ -165,14 +197,17 @@ const ProductDetail = () => {
           </p>
         )}
         <p className="text-lg text-gray-500 font-semibold">
-            Category: <span className="text-gray-700">{product.category}</span>
-          </p><p className="text-lg text-gray-500 font-semibold">
-            Model: <span className="text-gray-700">{product.model}</span>
-          </p><p className="text-lg text-gray-500 font-semibold">
-            Condition: <span className="text-gray-700">{product.condition}</span>
-          </p><p className="text-lg text-gray-500 font-semibold">
-            Color: <span className="text-gray-700">{product.color}</span>
-          </p>
+          Category: <span className="text-gray-700">{product.category}</span>
+        </p>
+        <p className="text-lg text-gray-500 font-semibold">
+          Model: <span className="text-gray-700">{product.model}</span>
+        </p>
+        <p className="text-lg text-gray-500 font-semibold">
+          Condition: <span className="text-gray-700">{product.condition}</span>
+        </p>
+        <p className="text-lg text-gray-500 font-semibold">
+          Color: <span className="text-gray-700">{product.color}</span>
+        </p>
         <p className="text-2xl font-bold text-red-600">
           Price: {product.price} {product.eCurrencyType}
         </p>

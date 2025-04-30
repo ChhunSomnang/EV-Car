@@ -1,88 +1,116 @@
-"use client"; // Mark this as a Client Component
-
-import React, { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import MapWrapper from "./MapWrapper";
+
+interface ChargingStationProps {
+  searchAddress: string;
+}
 
 interface Station {
   id: number;
   name: string;
   address: string;
   status: "Available" | "Busy";
-  position: [number, number]; // Latitude and Longitude
+  position: [number, number];
 }
 
-const ChargingStation: React.FC = () => {
+const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
   const [stations, setStations] = useState<Station[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [filteredStations, setFilteredStations] = useState<Station[]>([]);
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch data from the API
   useEffect(() => {
     const fetchStations = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/chargingStations.json");
         if (!response.ok) {
-          throw new Error("Failed to fetch data");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         setStations(data);
+        setFilteredStations(data);
       } catch (error) {
-        setError(error instanceof Error ? error.message : "An error occurred");
+        setError("Failed to load charging stations");
+        console.error("Error fetching stations:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchStations();
   }, []);
 
+  useEffect(() => {
+    if (searchAddress) {
+      const filtered = stations.filter((station) =>
+        station.address.toLowerCase().includes(searchAddress.toLowerCase())
+      );
+      setFilteredStations(filtered);
+      setSelectedStation(null);
+    } else {
+      setFilteredStations(stations);
+    }
+  }, [searchAddress, stations]);
+
   if (loading) {
-    return <div className="text-center p-8">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[600px]">
+        <div className="text-xl text-gray-600">Loading stations...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center p-8 text-red-600">Error: {error}</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[600px]">
+        <div className="text-xl text-red-500">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <section className="p-8 bg-gray-100">
-      <h2 className="text-3xl font-bold mb-6 text-center">Charging Stations</h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="h-96 rounded-md overflow-hidden">
-          {/* Pass selectedStation to MapWrapper */}
-          <MapWrapper
-            center={[11.5564, 104.9282]}
-            zoom={13}
-            stations={stations}
-            selectedStation={selectedStation}
-          />
-        </div>
-        <div className="space-y-4">
-          {stations.map((station) => (
-            <div
-              key={station.id}
-              className="p-4 bg-white rounded-lg shadow-md flex justify-between items-center cursor-pointer"
-              onClick={() => setSelectedStation(station)} // Set the clicked station
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Available Stations</h2>
+        <div className="space-y-4 max-h-[550px] overflow-y-auto">
+          {filteredStations.map((station) => (
+            <div 
+              key={station.id} 
+              className={`border-b pb-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer p-3 rounded ${
+                selectedStation?.id === station.id ? 'bg-blue-50' : ''
+              }`}
+              onClick={() => setSelectedStation(station)}
             >
-              <div>
-                <h3 className="font-semibold">{station.name}</h3>
-                <p className="text-gray-600">{station.address}</p>
+              <h3 className="font-bold text-lg text-gray-800">{station.name}</h3>
+              <p className="text-gray-600 mt-1">{station.address}</p>
+              <div className="flex items-center mt-2">
+                <span className="text-gray-700">Status: </span>
+                <span
+                  className={`ml-2 px-2 py-1 rounded-full text-sm font-medium ${
+                    station.status === "Available"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {station.status}
+                </span>
               </div>
-              <span
-                className={`px-3 py-1 rounded-full ${
-                  station.status === "Available"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-red-100 text-red-600"
-                }`}
-              >
-                {station.status}
-              </span>
             </div>
           ))}
         </div>
       </div>
-    </section>
+
+      <div className="md:col-span-2 rounded-lg overflow-hidden shadow-md h-[600px]">
+        <MapWrapper
+          center={[11.562108, 104.888535]}
+          zoom={13}
+          stations={filteredStations}
+          selectedStation={selectedStation}
+        />
+      </div>
+    </div>
   );
 };
 
