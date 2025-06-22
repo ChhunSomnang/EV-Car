@@ -1,3 +1,4 @@
+// app/list/ListPage.tsx
 "use client";
 
 import React, { useEffect, useCallback, useState } from "react";
@@ -34,23 +35,18 @@ const ListPage: React.FC = () => {
     (state: RootState) => state.products as ProductState
   );
 
-  // Pagination state and page size
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  // Initialize product fetch when idle or failed
   const initializeProducts = useCallback(() => {
     if (status === "idle" || status === "failed") {
       dispatch(fetchProducts({}));
     }
   }, [dispatch, status]);
 
-  // Sync selectedMakes with URL brand query param
   const syncBrandWithUrl = useCallback(() => {
     if (brandFromQuery) {
       const brandParam = brandFromQuery.toLowerCase().trim();
-
-      // Try to find a matching brand from items
       const matchingBrand = items.find((item) => {
         const itemBrand = (item.brand || "").toLowerCase().trim();
         return itemBrand === brandParam;
@@ -66,14 +62,12 @@ const ListPage: React.FC = () => {
     }
   }, [brandFromQuery, dispatch, items, selectedMakes]);
 
-  // Apply filters after products load or selectedMakes change
   const applyProductFilters = useCallback(() => {
     if (status === "succeeded" && items.length > 0) {
       dispatch(applyFilters());
     }
   }, [dispatch, status, items.length]);
 
-  // Effect hooks
   useEffect(() => {
     initializeProducts();
   }, [initializeProducts]);
@@ -86,24 +80,20 @@ const ListPage: React.FC = () => {
     applyProductFilters();
   }, [applyProductFilters, selectedMakes]);
 
-  // Reset to first page when filteredItems change
   useEffect(() => {
     setCurrentPage(1);
   }, [filteredItems.length]);
 
-  // Pagination slicing
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedProducts = filteredItems.slice(startIndex, endIndex);
 
-  // Page change handler
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= Math.ceil(filteredItems.length / pageSize)) {
       setCurrentPage(page);
     }
   };
 
-  // Loading spinner
   if (status === "loading" && items.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -111,8 +101,6 @@ const ListPage: React.FC = () => {
       </div>
     );
   }
-
-  // Error display
   if (status === "failed" && error) {
     return (
       <div className="text-center mt-20 text-red-600 text-xl">
@@ -126,7 +114,12 @@ const ListPage: React.FC = () => {
       <aside className="w-full lg:w-1/4 xl:w-1/5 p-2 sm:p-4 lg:sticky lg:top-20 lg:self-start bg-white rounded-lg shadow-sm">
         <div className="lg:hidden mb-4 flex justify-between items-center">
           <h2 className="text-lg font-semibold">Filters</h2>
-          <button className="text-blue-600 hover:text-blue-800 font-medium" onClick={() => document.querySelector('aside')?.classList.toggle('hidden')}>
+          <button
+            className="text-blue-600 hover:text-blue-800 font-medium"
+            onClick={() =>
+              document.querySelector("aside")?.classList.toggle("hidden")
+            }
+          >
             Show/Hide
           </button>
         </div>
@@ -143,7 +136,7 @@ const ListPage: React.FC = () => {
               <p className="text-gray-600 text-lg">
                 No products found matching your criteria.
               </p>
-              <button 
+              <button
                 onClick={() => dispatch(setSelectedMakes([]))}
                 className="mt-4 text-blue-600 hover:text-blue-800 font-medium"
               >
