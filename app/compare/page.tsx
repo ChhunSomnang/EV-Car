@@ -16,7 +16,7 @@ interface ProductProperty {
 
 const ComparePage: React.FC = () => {
   const dispatch = useDispatch();
-  const selectedProducts = useSelector((state: RootState) => state.compare.selectedProducts);
+  const { selectedProducts, error: compareError, maxProducts } = useSelector((state: RootState) => state.compare);
   const products = useSelector((state: RootState) => state.products.items);
   const status = useSelector((state: RootState) => state.products.status);
 
@@ -51,7 +51,7 @@ const ComparePage: React.FC = () => {
   const allProperties = Array.from(
     new Set(
       comparedProducts.flatMap(product => 
-        (product.properties || []).map((prop: { name: any; }) => prop.name)
+        ((product as any).properties || []).map((prop: { name: any; }) => prop.name)
       )
     )
   );
@@ -71,6 +71,18 @@ const ComparePage: React.FC = () => {
         >
           Clear All
         </button>
+      </div>
+
+      {/* Error Message */}
+      {compareError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+          <span className="block sm:inline">{compareError}</span>
+        </div>
+      )}
+
+      {/* Compare Status */}
+      <div className="mb-6 text-sm text-gray-600">
+        Comparing {comparedProducts.length} of {maxProducts} products
       </div>
 
       {/* Product Cards */}
@@ -126,42 +138,74 @@ const ComparePage: React.FC = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {/* Basic Details */}
             <tr>
-              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Weight</td>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Model</td>
               {comparedProducts.map((product) => (
                 <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
-                  {product.weight ? `${product.weight} ${product.weightUnit || ''}` : 'N/A'}
+                  {product.model || 'N/A'}
                 </td>
               ))}
             </tr>
             <tr>
-              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Dimensions</td>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Brand</td>
               {comparedProducts.map((product) => (
                 <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
-                  {product.length && product.width && product.height
-                    ? `${product.length} x ${product.width} x ${product.height} ${product.measureUnit || ''}`
-                    : 'N/A'}
+                  {product.brand || 'N/A'}
                 </td>
               ))}
             </tr>
             <tr>
-              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Vendor</td>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Price</td>
               {comparedProducts.map((product) => (
                 <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
-                  {product.vendor || 'N/A'}
+                  {product.price ? `${product.eCurrencyType} ${product.price.toLocaleString()}` : 'N/A'}
                 </td>
               ))}
             </tr>
             <tr>
-              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Availability</td>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Condition</td>
+              {comparedProducts.map((product) => (
+                <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
+                  {product.condition || 'N/A'}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Color</td>
+              {comparedProducts.map((product) => (
+                <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
+                  {product.color || 'N/A'}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Location</td>
+              {comparedProducts.map((product) => (
+                <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
+                  {product.location || 'N/A'}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Contact Number</td>
+              {comparedProducts.map((product) => (
+                <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
+                  {product.phoneNumber || 'N/A'}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">Featured</td>
               {comparedProducts.map((product) => (
                 <td key={product.id} className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    product.isBuyable 
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {product.isBuyable ? 'In Stock' : 'Out of Stock'}
-                  </span>
+                  {product.isFeatured ? (
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      Featured
+                    </span>
+                  ) : (
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                      Standard
+                    </span>
+                  )}
                 </td>
               ))}
             </tr>
@@ -173,7 +217,7 @@ const ComparePage: React.FC = () => {
                   {propertyName}
                 </td>
                 {comparedProducts.map((product) => {
-                  const property = product.properties?.find((p: { name: any; }) => p.name === propertyName);
+                  const property = (product as any).properties?.find((p: { name: any; }) => p.name === propertyName);
                   return (
                     <td key={product.id} className="px-6 py-4 whitespace-nowrap text-gray-500">
                       {property?.values[0]?.value || 'N/A'}

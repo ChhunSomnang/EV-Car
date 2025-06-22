@@ -38,7 +38,7 @@ const Footer = () => {
 
         {/* About Store 24 Section */}
         <div>
-          <h3 className="text-2xl font-bold mb-5">About Store 24</h3>
+          <h3 className="text-2xl font-bold mb-5">About EV Car</h3>
           <ul className="space-y-2">
             <li><a href="#" className="hover:text-gray-300 transition">About Us</a></li>
             <li><a href="#" className="hover:text-gray-300 transition">Contact Us</a></li>
@@ -60,7 +60,7 @@ const Footer = () => {
 
       {/* Bottom Section */}
       <div className="text-center py-4 bg-gray-900">
-        <p className="text-sm text-gray-400">&copy; 2024 Store 24. All Rights Reserved.</p>
+        <p className="text-sm text-gray-400">&copy; 2025 EV Car. All Rights Reserved.</p>
       </div>
     </footer>
   );

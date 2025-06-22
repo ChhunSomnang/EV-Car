@@ -1,3 +1,4 @@
+// lib/features/catalogSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface Category {
@@ -10,7 +11,7 @@ interface Category {
 
 interface CatalogState {
   categories: Category[];
-  selectedCategory: string | null;
+  selectedCategory: string | null; // This type is correct!
   isLoading: boolean;
   error: string | null;
 }
@@ -29,7 +30,8 @@ const catalogSlice = createSlice({
     setCategories: (state, action: PayloadAction<Category[]>) => {
       state.categories = action.payload;
     },
-    setSelectedCategory: (state, action: PayloadAction<string>) => {
+    // *** THIS IS THE CRUCIAL CHANGE ***
+    setSelectedCategory: (state, action: PayloadAction<string | null>) => {
       state.selectedCategory = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {

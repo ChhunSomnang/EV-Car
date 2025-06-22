@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import { Select } from "@/components/ui/select";
 
 interface Garage {
   garage_id: number;
@@ -27,43 +27,133 @@ interface AppointmentBookingModalProps {
 }
 
 const AppointmentBookingModal = ({ open, onClose, garage }: AppointmentBookingModalProps) => {
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string | null>(""); // Null until a time is selected
-  const [name, setName] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [serviceType, setServiceType] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [timeError, setTimeError] = useState<string>(""); // For unavailable time error
-
-  const timeSlots = [
-    "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-    "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM",
-    "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM"
-  ];
-
-  // Simulate unavailable times
-  const unavailableTimes = ["1:00 PM", "3:30 PM", "5:00 PM"];
 
   useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    setSelectedDate(today);
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    const minDateTime = now.toISOString().slice(0, 16);
+    
+    setStartDate(minDateTime);
+    
+    const defaultEndDate = new Date(now);
+    defaultEndDate.setHours(defaultEndDate.getHours() + 1);
+    setEndDate(defaultEndDate.toISOString().slice(0, 16));
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateDates = (start: string, end: string): boolean => {
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+    const now = new Date().getTime();
 
-    if (!selectedDate || !selectedTime || !name.trim()) {
+    if (startTime < now) {
+      setError('Start date cannot be in the past');
+      return false;
+    }
+
+    if (endTime <= startTime) {
+      setError('End date must be after start date');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submission started');
+    console.log('Current form values:', { startDate, endDate, serviceType });
+
+    if (!startDate || !endDate || !serviceType) {
+      const missingFields = [];
+      if (!startDate) missingFields.push('startDate');
+      if (!endDate) missingFields.push('endDate');
+      if (!serviceType) missingFields.push('serviceType');
+      console.log('Validation failed - missing fields:', missingFields);
       setError("All fields are required.");
       return;
     }
 
-    if (unavailableTimes.includes(selectedTime)) {
-      setTimeError("This time slot is unavailable. Please choose another time.");
-      return;
-    }
+    try {
+      setError('');
 
-    setError("");
-    setTimeError(""); // Clear any previous time errors
-    console.log("Booking submitted:", { name, selectedDate, selectedTime, garage_id: garage.garage_id });
-    onClose();
+      if (!serviceType) {
+        setError('Please select a service type');
+        return;
+      }
+
+      if (!startDate || !endDate) {
+        setError('Please select both start and end dates');
+        return;
+      }
+
+      if (!validateDates(startDate, endDate)) {
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError("Please login to book an appointment.");
+        return;
+      }
+
+      const requestBody = {
+        garageId: garage.garage_id,
+        serviceType: serviceType,
+        startDate: new Date(startDate).toISOString().split('.')[0] + 'Z',
+        endDate: new Date(endDate).toISOString().split('.')[0] + 'Z'
+      };
+
+      try {
+        const response = await fetch('https://inventoryapiv1-367404119922.asia-southeast1.run.app/GarageBooking', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const responseText = await response.text();
+
+        if (!response.ok) {
+          let errorMessage = 'Booking failed';
+          
+          if (responseText) {
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.message || `Booking failed: ${response.status} - ${response.statusText || 'Unknown error'}`;
+            } catch (e) {
+              errorMessage = `Booking failed: ${response.status} - ${responseText || response.statusText || 'Unknown error'}`;
+            }
+          }
+          
+          setError(errorMessage);
+          return;
+        }
+
+        // Success case
+        setError('');
+        onClose();
+    } catch (error) {
+      console.error('Booking error details:', error);
+      console.log('Full error object:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      setError(error instanceof Error ? error.message : 'Failed to book appointment');
+    }
+    } catch (error) {
+      console.error('Booking error details:', error);
+      console.log('Full error object:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      setError(error instanceof Error ? error.message : 'Failed to book appointment');
+    }
   };
 
   if (!open) return null;
@@ -82,56 +172,59 @@ const AppointmentBookingModal = ({ open, onClose, garage }: AppointmentBookingMo
             <DialogTitle className="text-2xl font-semibold text-center text-gray-800">Book an Appointment</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Date and Time Flex Section */}
+            {/* Service Type Selection */}
+            <div className="flex flex-col">
+              <Label className="text-lg font-medium text-gray-700">Service Type</Label>
+              <select
+                value={serviceType}
+                onChange={(e) => setServiceType(e.target.value)}
+                className="w-full mt-2 p-3 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a service</option>
+                {garage.services.map((service, index) => (
+                  <option key={index} value={service}>
+                    {service}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Date Selection */}
             <div className="flex space-x-6">
-              {/* Date Picker */}
               <div className="flex flex-col w-1/2">
-                <Label className="text-lg font-medium text-gray-700">Select Appointment Date</Label>
+                <Label className="text-lg font-medium text-gray-700">Start Date</Label>
                 <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  type="datetime-local"
+                  value={startDate}
+                  min={new Date().toISOString().slice(0, 16)}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    if (endDate) validateDates(e.target.value, endDate);
+                  }}
                   className="w-full mt-2 p-3 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
-              {/* Time Slot Buttons */}
               <div className="flex flex-col w-1/2">
-                <Label className="text-lg font-medium text-gray-700">Select Time Slot</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                {timeSlots.map((time) => (
-                  <Button
-                    key={time}
-                    type="button"
-                    onClick={() => setSelectedTime(time)}
-                    disabled={unavailableTimes.includes(time)}
-                    className={`
-                      ${unavailableTimes.includes(time) ? "bg-red-500 text-white cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}
-                      ${selectedTime === time && !unavailableTimes.includes(time) ? "bg-blue-700" : ""}
-                      px-4 py-2 rounded-md
-                    `}
-                  >
-                    {time} {unavailableTimes.includes(time) && "(Unavailable)"}
-                  </Button>
-                ))}
-
-                </div>
+                <Label className="text-lg font-medium text-gray-700">End Date</Label>
+                <Input
+                  type="datetime-local"
+                  value={endDate}
+                  min={startDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    if (startDate) validateDates(startDate, e.target.value);
+                  }}
+                  className="w-full mt-2 p-3 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
 
-            {/* Name Input */}
-            <div className="flex flex-col">
-              <Label className="text-lg font-medium text-gray-700">Phone Number</Label>
-              <Input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your phone number"
-                className="w-full mt-2 p-3 border-2 border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            {timeError && <p className="text-red-600 text-sm">{timeError}</p>}
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {error && (
+              <div className="p-3 mb-4 text-sm text-red-800 bg-red-50 rounded-lg dark:text-red-600" role="alert">
+                <span className="font-medium">Error:</span> {error}
+              </div>
+            )}
             
             <div className="flex justify-between items-center mt-6">
               <Button

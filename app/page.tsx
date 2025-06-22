@@ -18,10 +18,6 @@ export default function Home() {
         Popular car
       </div>
       <ListProduct />
-      <div className="flex items-center justify-center my-14 text-5xl font-normal">
-        Special Offers
-      </div>
-      <SpecialOffers />
       <div className="mx-72">
         <div className="">{/*<Menu />*/}</div>
       </div>
