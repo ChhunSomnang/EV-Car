@@ -126,7 +126,9 @@ const ListPage: React.FC = () => {
             Show/Hide
           </button>
         </div>
-        <Filter />
+        <Suspense fallback={<div className="text-center p-4">Loading filters...</div>}>
+          <Filter />
+        </Suspense>
       </aside>
 
       <main className="w-full lg:w-3/4 xl:w-4/5 p-2 sm:p-4">
