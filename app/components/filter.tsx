@@ -3,6 +3,9 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../lib/store";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   setSelectedMakes,
   setSelectedCategories,
@@ -130,6 +133,20 @@ const Filter = () => {
     error
   } = useSelector((state: RootState) => state.products);
 
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const updateUrlParams = (makes: string[]) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (makes.length > 0) {
+      params.set('brand', makes.join(','));
+    } else {
+      params.delete('brand');
+    }
+    router.push(`/list?${params.toString()}`);
+  };
+
   const uniqueBrands = useMemo(
     () => Array.from(new Set(items.map(item => item.brand).filter(Boolean))).sort(),
     [items]
@@ -182,6 +199,7 @@ const Filter = () => {
         showClear={selectedMakes.length > 0}
         onClear={() => {
           dispatch(setSelectedMakes([]));
+          updateUrlParams([]);
           dispatch(applyFilters());
         }}
       >
@@ -197,6 +215,7 @@ const Filter = () => {
                   ? selectedMakes.filter(make => make !== brand)
                   : [...selectedMakes, brand];
                 dispatch(setSelectedMakes(newSelection));
+                updateUrlParams(newSelection);
                 dispatch(applyFilters());
               }}
             />

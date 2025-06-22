@@ -304,70 +304,82 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Available Stations</h2>
+    <div className="w-full max-w-7xl mx-auto">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Available Stations</h2>
           {isAdminUser && (
             <a
               href="/chargingstations/create"
-              className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
               Add Station
             </a>
           )}
         </div>
 
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <select
-            className="border rounded-lg px-3 py-2"
-            value={filters.availability}
-            onChange={(e) => setFilters(prev => ({ ...prev, availability: e.target.value as "all" | "available" | "busy" }))}
-          >
-            <option value="all">All Stations</option>
-            <option value="available">Available Only</option>
-            <option value="busy">Busy Only</option>
-          </select>
-
-          <select
-            className="border rounded-lg px-3 py-2"
-            value={filters.type}
-            onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-          >
-            <option value="all">All Types</option>
-            {Array.from(new Set(stations.map(s => s.type))).map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              className="border rounded-lg px-3 py-2 w-full"
-              placeholder="Min Power"
-              value={filters.minPower}
-              onChange={(e) => setFilters(prev => ({ ...prev, minPower: Number(e.target.value) }))}
-            />
-            <span>kW</span>
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Availability</label>
+            <select
+              className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={filters.availability}
+              onChange={(e) => setFilters(prev => ({ ...prev, availability: e.target.value as "all" | "available" | "busy" }))}
+            >
+              <option value="all">All Stations</option>
+              <option value="available">Available Only</option>
+              <option value="busy">Busy Only</option>
+            </select>
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              className="border rounded-lg px-3 py-2 w-full"
-              placeholder="Max Power"
-              value={filters.maxPower}
-              onChange={(e) => setFilters(prev => ({ ...prev, maxPower: Number(e.target.value) }))}
-            />
-            <span>kW</span>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Type</label>
+            <select
+              className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              value={filters.type}
+              onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
+            >
+              <option value="all">All Types</option>
+              {Array.from(new Set(stations.map(s => s.type))).map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Min Power</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="0"
+                value={filters.minPower}
+                onChange={(e) => setFilters(prev => ({ ...prev, minPower: Number(e.target.value) }))}
+              />
+              <span className="text-gray-600">kW</span>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Max Power</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="1000"
+                value={filters.maxPower}
+                onChange={(e) => setFilters(prev => ({ ...prev, maxPower: Number(e.target.value) }))}
+              />
+              <span className="text-gray-600">kW</span>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+        <div className="space-y-4 sm:space-y-6 max-h-[600px] overflow-y-auto pr-2">
           {filteredStations.map((station) => (
             <div 
               key={station.id} 
-              className={`border p-5 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer ${
+              className={`border p-4 sm:p-5 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer ${
                 selectedStation?.id === station.id ? 'bg-blue-50 border-blue-200' : 'border-gray-200'
               }`}
               onClick={async () => {
@@ -375,8 +387,8 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
                 setSelectedStation(convertedStation);
               }}
             >
-              <div className="flex items-start gap-4">
-                <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                <div className="w-full sm:w-24 h-48 sm:h-24 rounded-lg overflow-hidden">
                   <img 
                     src={station.imageUrl.startsWith('http') ? station.imageUrl : `https://pub-133f8593b35749f28fa090bc33925b31.r2.dev/${station.imageUrl}`} 
                     alt={station.name}
@@ -387,15 +399,15 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
                     }}
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-xl text-gray-900 truncate">{station.name}</h3>
-                    <div className="flex gap-2">
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4 mb-2">
+                    <h3 className="font-bold text-lg sm:text-xl text-gray-900 truncate">{station.name}</h3>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                       <a
                         href={station.mapLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                        className="flex items-center justify-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors w-full sm:w-auto"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -404,7 +416,7 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
                         View on Maps
                       </a>
                       <button
-                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors ${
+                        className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg transition-colors w-full sm:w-auto ${
                           station.availability
                             ? "bg-green-50 text-green-600 hover:bg-green-100"
                             : "bg-gray-50 text-gray-400 cursor-not-allowed"
@@ -424,11 +436,11 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-lg mb-3 truncate">{station.location}</p>
-                  <div className="flex items-center mb-3">
+                  <p className="text-gray-600 text-base sm:text-lg mb-3 truncate">{station.location}</p>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
                     <span className="text-gray-700 font-medium">Status: </span>
                     <span
-                      className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
                         station.availability
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
@@ -437,12 +449,12 @@ const ChargingStation: React.FC<ChargingStationProps> = ({ searchAddress }) => {
                       {station.availability ? "Available" : "Busy"}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 text-gray-700">
-                    <p><span className="font-medium">Type:</span> {station.type}</p>
-                    <p><span className="font-medium">Power:</span> {station.powerValue}kW</p>
-                    <p><span className="font-medium">Price:</span> ${station.pricePerKwh}/kWh</p>
-                    <p><span className="font-medium">Distance:</span> {station.distanceInKm}km</p>
-                    <p className="col-span-2"><span className="font-medium">Rating:</span> {station.rating}/5</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-sm sm:text-base text-gray-700">
+                    <p className="flex items-center gap-1"><span className="font-medium">Type:</span> {station.type}</p>
+                    <p className="flex items-center gap-1"><span className="font-medium">Power:</span> {station.powerValue}kW</p>
+                    <p className="flex items-center gap-1"><span className="font-medium">Price:</span> ${station.pricePerKwh}/kWh</p>
+                    <p className="flex items-center gap-1"><span className="font-medium">Distance:</span> {station.distanceInKm}km</p>
+                    <p className="flex items-center gap-1 col-span-full"><span className="font-medium">Rating:</span> {station.rating}/5</p>
                   </div>
                 </div>
               </div>

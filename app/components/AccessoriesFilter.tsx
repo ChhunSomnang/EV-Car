@@ -42,12 +42,27 @@ const AccessoriesFilter: React.FC<FilterProps> = ({
     });
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter({
+      ...filter,
+      search: e.target.value,
+    });
+  };
+
   return (
     <div className="mb-6">
       <h2 className="text-2xl font-semibold mb-4">Filter</h2>
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-4">
+        <input
+          type="text"
+          className="p-2 border rounded w-full md:w-2/3 lg:w-1/2"
+          value={filter.search}
+          onChange={handleSearchChange}
+          placeholder="Search accessories..."
+        />
+        <div className="flex flex-col md:flex-row gap-4">
         <select
-          className="p-2 border rounded"
+          className="p-2 border rounded w-full md:w-1/4"
           value={filter.category}
           onChange={handleCategoryChange}
         >
@@ -59,7 +74,7 @@ const AccessoriesFilter: React.FC<FilterProps> = ({
           ))}
         </select>
         <select
-          className="p-2 border rounded"
+          className="p-2 border rounded w-full md:w-1/4"
           value={filter.brand}
           onChange={handleBrandChange}
         >
@@ -72,18 +87,19 @@ const AccessoriesFilter: React.FC<FilterProps> = ({
         </select>
         <input
           type="number"
-          className="p-2 border rounded"
+          className="p-2 border rounded w-full md:w-1/4"
           value={filter.minPrice}
           onChange={handleMinPriceChange}
           placeholder="Min Price"
         />
         <input
           type="number"
-          className="p-2 border rounded"
+          className="p-2 border rounded w-full md:w-1/4"
           value={filter.maxPrice}
           onChange={handleMaxPriceChange}
           placeholder="Max Price"
         />
+        </div>
       </div>
     </div>
   );

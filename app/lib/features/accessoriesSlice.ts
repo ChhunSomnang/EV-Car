@@ -20,7 +20,8 @@ export interface Accessory {
   location: string;
   sku: string;
   price: number;
-  compatibleModels: any[];
+  phoneNumber: string;
+  compatibleModels: string[];
 }
 
 export interface Filter {
@@ -28,6 +29,7 @@ export interface Filter {
   brand: string;
   minPrice: number;
   maxPrice: number;
+  search: string;
 }
 
 interface AccessoriesState {
@@ -46,6 +48,7 @@ const initialState: AccessoriesState = {
     brand: "",
     minPrice: 0,
     maxPrice: Infinity,
+    search: "",
   },
   loading: false,
   error: null,
@@ -104,12 +107,16 @@ const accessoriesSlice = createSlice({
       state.filter = action.payload;
     },
     applyFilter: (state) => {
-      const { category, brand, minPrice, maxPrice } = state.filter;
+      const { category, brand, minPrice, maxPrice, search } = state.filter;
       const filtered = state.accessories.filter((item) => {
         const isCategoryMatch = category ? item.category === category : true;
         const isBrandMatch = brand ? item.brand === brand : true;
         const isPriceMatch = item.price >= minPrice && item.price <= maxPrice;
-        return isCategoryMatch && isBrandMatch && isPriceMatch;
+        const searchTerm = search.toLowerCase();
+        const isSearchMatch = search === "" ? true : 
+          item.name.toLowerCase().includes(searchTerm) || 
+          item.description.toLowerCase().includes(searchTerm);
+        return isCategoryMatch && isBrandMatch && isPriceMatch && isSearchMatch;
       });
       state.filteredAccessories = filtered;
     },

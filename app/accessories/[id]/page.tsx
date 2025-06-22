@@ -85,19 +85,61 @@ const AccessoryDetailPage = () => {
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">{accessory.name}</h1>
           
-          <div className="flex items-center space-x-4">
-            <span className="text-lg font-semibold text-gray-900">
-              Brand: {accessory.brand}
-            </span>
-            <span className="text-lg font-semibold text-gray-900">
-              Category: {accessory.category}
-            </span>
+          <p className="text-gray-600 mt-4">{accessory.description}</p>
+
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Brand</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.brand}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Category</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.category}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Weight</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.weight} kg</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Color</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.color}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Location</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.location}</p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">Phone Number</p>
+              <p className="text-lg font-semibold text-gray-900">{accessory.phoneNumber}</p>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <span className="text-lg font-semibold text-gray-900">
-              Rating: {accessory.rating}
-            </span>
+          <div className="mt-6 space-y-2">
+            <p className="text-sm text-gray-500">SKU</p>
+            <p className="text-lg font-mono text-gray-900">{accessory.sku}</p>
+          </div>
+
+          <div className="mt-6 space-y-2">
+             <p className="text-sm text-gray-500">Rating</p>
+             <div className="flex items-center space-x-2">
+               <span className="text-lg font-semibold text-gray-900">{accessory.rating}</span>
+               <span className="text-sm text-gray-500">({accessory.reviewCount} reviews)</span>
+             </div>
+           </div>
+
+           <div className="mt-6 space-y-2">
+             <p className="text-sm text-gray-500">Price</p>
+             <p className="text-2xl font-bold text-gray-900">${accessory.price.toFixed(2)}</p>
+           </div>
+
+           <div className="mt-6 space-y-2">
+             <p className="text-sm text-gray-500">Compatible Models</p>
+             <div className="space-y-1">
+               {accessory.compatibleModels.map((model, index) => (
+                 <p key={index} className="text-gray-900">{model}</p>
+               ))}
+             </div>
+           </div>
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, index) => (
                 <svg
@@ -114,21 +156,15 @@ const AccessoryDetailPage = () => {
                 </svg>
               ))}
             </div>
+            <button 
+              onClick={handleAddToCart}
+              className="mt-6 w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            >
+              Add to Cart
+            </button>
           </div>
-
-          <div className="text-2xl font-bold text-blue-600">
-            ${accessory.price.toFixed(2)}
-          </div>
-
-          <button 
-            onClick={handleAddToCart}
-            className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
-          >
-            Add to Cart
-          </button>
         </div>
       </div>
-    </div>
   );
 };
 

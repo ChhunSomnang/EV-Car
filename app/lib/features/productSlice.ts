@@ -47,6 +47,8 @@ interface ProductState {
   maxPrice?: number;
   selectedLocations: string[];
   isFeaturedFilter: boolean;
+  searchQuery: string;
+  searchFeatures: string;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   totalItems: number;
@@ -62,6 +64,8 @@ const initialState: ProductState = {
   maxPrice: undefined,
   selectedLocations: [],
   isFeaturedFilter: false,
+  searchQuery: "",
+  searchFeatures: "",
   status: "idle",
   error: null,
   totalItems: 0,
@@ -125,6 +129,12 @@ const productSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
+    setSearchFeatures: (state, action: PayloadAction<string>) => {
+      state.searchFeatures = action.payload;
+    },
     setSelectedMakes: (s, a: PayloadAction<string[]>) => { s.selectedMakes = a.payload; },
     setSelectedCategories: (s, a: PayloadAction<string[]>) => { s.selectedCategories = a.payload; },
     setSelectedConditions: (s, a: PayloadAction<string[]>) => { s.selectedConditions = a.payload; },
@@ -145,14 +155,33 @@ const productSlice = createSlice({
     applyFilters: (s) => {
       let f = [...s.items];
 
+      // Apply search query filter
+      if (s.searchQuery) {
+        const query = s.searchQuery.toLowerCase().trim();
+        f = f.filter(item => 
+          item.name.toLowerCase().includes(query) ||
+          item.brand.toLowerCase().includes(query) ||
+          item.model.toLowerCase().includes(query) ||
+          item.description.toLowerCase().includes(query)
+        );
+      }
+
+      // Apply features filter
+      if (s.searchFeatures) {
+        const features = s.searchFeatures.toLowerCase().trim();
+        f = f.filter(item =>
+          item.description.toLowerCase().includes(features)
+        );
+      }
+
       if (s.selectedMakes.length > 0) {
         f = f.filter(item => {
           const brand = item.brand.toLowerCase().trim();
           const vendor = item.vendor.toLowerCase().trim();
-          return s.selectedMakes.some(make =>
-            brand === make.toLowerCase().trim() ||
-            vendor === make.toLowerCase().trim()
-          );
+          return s.selectedMakes.some(make => {
+            const makeLower = make.toLowerCase().trim();
+            return brand.includes(makeLower) || vendor.includes(makeLower);
+          });
         });
       }
 
@@ -231,6 +260,8 @@ export const {
   setIsFeaturedFilter,
   resetFilters,
   applyFilters,
+  setSearchQuery,
+  setSearchFeatures,
 } = productSlice.actions;
 
 export default productSlice.reducer;

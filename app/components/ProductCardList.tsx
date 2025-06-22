@@ -135,13 +135,12 @@ const ProductCardList: React.FC<ProductCardListProps> = ({
                   <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">
                     {product.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {product.brand} - {product.model}
-                  </p>
+                  
                   <p className="text-xl font-extrabold text-blue-600 mb-2">
                     {`${product.eCurrencyType}${product.price.toLocaleString()}`}
                   </p>
                   <div className="text-sm text-gray-700 space-y-1 mb-4">
+                  <p><strong>Brand:</strong> {product.brand}</p>
                     <p>
                       <strong>Condition:</strong> {product.condition}
                     </p>

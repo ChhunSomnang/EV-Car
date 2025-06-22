@@ -4,22 +4,23 @@ import ListProduct from "./components/ListProduct";
 
 export default function Home() {
   return (
-    <div className="">
-      <div className="text-2xl flex mx-4 md:mx-10 lg:mx-24 xl:mx-72 my-10">
-        Welcome to Store24, the biggest online market in Cambodia
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-10">
+          Welcome to Store24, the biggest online market in Cambodia
+        </h1>
 
-      <div className="flex items-center justify-center my-14 text-5xl font-normal">
-        Browse by brand
-      </div>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal text-center mb-8 sm:mb-14">
+          Browse by brand
+        </h2>
 
-      <BrandList />
-      <div className="flex items-center justify-center my-14 text-5xl font-normal">
-        Popular car
-      </div>
-      <ListProduct />
-      <div className="mx-72">
-        <div className="">{/*<Menu />*/}</div>
+        <BrandList />
+        
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal text-center my-8 sm:my-14">
+          Popular car
+        </h2>
+        
+        <ListProduct />
       </div>
     </div>
   );

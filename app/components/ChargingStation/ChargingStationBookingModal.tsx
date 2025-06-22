@@ -59,8 +59,15 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
 
     // Validate appointment date and time
     const now = new Date();
-    const appointmentDateTime = new Date(`${selectedDate}T${selectedTime}:00`);
+    // Parse the date and time in the local timezone
+    const appointmentDateTime = new Date(`${selectedDate}T${selectedTime}:00`); 
     
+    if (isNaN(appointmentDateTime.getTime())) { // Check for invalid date
+        setError("Invalid date or time selected.");
+        return;
+    }
+
+    // Allow booking for the current day if the time is in the future
     if (appointmentDateTime < now) {
       setError("Please select a future date and time.");
       return;
@@ -81,11 +88,10 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
         return;
       }
 
-      const appointmentDateTime = new Date(`${selectedDate}T${selectedTime}:00.000Z`);
-      
+      // Convert the locally interpreted date/time to ISOString (which is UTC)
       const appointmentData = {
         chargingStationId: station.id,
-        appointmentDate: appointmentDateTime.toISOString()
+        appointmentDate: appointmentDateTime.toISOString() 
       };
       
       // Add debugging to see what station.id actually is
@@ -111,15 +117,19 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
       console.log('Response body:', responseText);
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setError("Authentication failed. Please log in again.");
-          return;
+        let errorMessage = "Failed to book appointment. Please try again.";
+        try {
+            const errorJson = JSON.parse(responseText);
+            errorMessage = errorJson.message || errorJson.detail || errorMessage;
+        } catch (parseError) {
+            // If responseText is not JSON, use default message
+            if (response.status === 401) errorMessage = "Authentication failed. Please log in again.";
+            else if (response.status === 400) errorMessage = "Invalid request data. Please check your inputs.";
+            else if (response.status === 409) errorMessage = "This slot is already booked or conflicts with another booking.";
+            else if (response.status === 500) errorMessage = "Server error. Please try again later or contact support.";
         }
-        if (response.status === 500) {
-          setError("Server error. Please try again later or contact support.");
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}\nResponse: ${responseText}`);
+        setError(errorMessage);
+        return;
       }
 
       let result;
@@ -144,13 +154,15 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
       
       alert(`Appointment booked successfully!\nStation: ${station.name}\nDate: ${selectedDate}\nTime: ${selectedTime}\nDuration: ${duration} hour(s)\nEstimated Cost: $${estimatedCost}`);
       onClose();
-    } catch (error) {
-      console.error('Booking error:', error);
-      setError("Failed to book appointment. Please try again.");
+    } catch (err: any) {
+      console.error('Booking error:', err);
+      setError(`Failed to book appointment: ${err.message || "Please check your network and try again."}`);
     }
   };
 
   if (!open) return null;
+
+  const minDate = new Date().toISOString().split('T')[0]; // Current date for min attribute
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -179,7 +191,7 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                min={minDate}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
@@ -235,13 +247,13 @@ const ChargingStationBookingModal: React.FC<ChargingStationBookingModalProps> = 
                     setPhoneNumber(value);
                   }}
                   placeholder="Enter 9-10 digit phone number"
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${phoneNumber.length >= 9 ? 'border-green-500' : 'border-gray-300'}`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${phoneNumber.length >= 9 && phoneNumber.length <= 10 ? 'border-green-500' : 'border-gray-300'}`}
                   required
                   title="Please enter a valid 9-10 digit phone number"
                 />
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Format: 9-10 digits</span>
-                  <span className={`${phoneNumber.length >= 9 ? 'text-green-500' : 'text-gray-500'}`}>
+                  <span className={`${phoneNumber.length >= 9 && phoneNumber.length <= 10 ? 'text-green-500' : 'text-gray-500'}`}>
                     {phoneNumber.length}/9-10 digits
                   </span>
                 </div>

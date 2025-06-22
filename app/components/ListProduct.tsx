@@ -72,7 +72,7 @@ const ListProduct: React.FC = () => {
 
   return (
     <>
-      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6 font-inter">
+      <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6 font-inter">
         {paginatedProducts.map((product: Product) => {
           const imageUrl = product.imgSrc || FALLBACK_PRODUCT_IMAGE;
           const isFavorite = favorites.some(fav => fav.productId === product.id);
@@ -122,7 +122,7 @@ const ListProduct: React.FC = () => {
                 </button>
               </div>
 
-              <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+              <div className="relative w-full h-40 sm:h-48 bg-gray-100 overflow-hidden">
                 <img
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                   src={imageUrl}
@@ -136,18 +136,18 @@ const ListProduct: React.FC = () => {
                 />
               </div>
 
-              <div className="p-4 flex flex-col justify-between flex-grow">
+              <div className="p-3 sm:p-4 flex flex-col justify-between flex-grow">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">
                     {product.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {product.vendor} - {product.model}
-                  </p>
+                 
+                  
                   <p className="text-xl font-extrabold text-blue-600 mb-2">
                     {`${product.price.toLocaleString()} ${product.eCurrencyType}`}
                   </p>
                   <div className="text-sm text-gray-700 space-y-1 mb-2">
+                    <p><strong>Brand:</strong> {product.brand}</p>
                     <p><strong>Condition:</strong> {product.condition}</p>
                     <p><strong>Category:</strong> {product.category}</p>
                     <p><strong>Location:</strong> {product.location}</p>
@@ -166,11 +166,11 @@ const ListProduct: React.FC = () => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-center gap-2 py-6">
+      <div className="flex flex-wrap items-center justify-center gap-2 py-4 sm:py-6 px-4">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-md bg-blue-600 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Previous
         </button>
@@ -179,7 +179,7 @@ const ListProduct: React.FC = () => {
           <button
             key={page}
             onClick={() => handlePageChange(page)}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg transition-all duration-200 ${
               currentPage === page
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-300"
@@ -192,7 +192,7 @@ const ListProduct: React.FC = () => {
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-md bg-blue-600 text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Next
         </button>

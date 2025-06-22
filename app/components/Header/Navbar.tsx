@@ -49,7 +49,7 @@ export default function Navbar() {
     { href: "/chargingstations", label: "Charging Stations" },
     { href: "/accessories", label: "Accessories" },
     { href: "/garage", label: "Our Garages" },
-    { href: "/catalog", label: "Catalog" },
+    
     { href: "/favorite", label: "Favorite" },
     { href: "/compare", label: "Compare" },
   ];

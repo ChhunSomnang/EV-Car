@@ -28,9 +28,13 @@ const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
       onClick={handleBrandClick}
       className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:cursor-pointer"
     >
-      <div className="p-4 text-center">
-        <img src={brand.logo} alt={brand.name} className="w-32 h-32 mx-auto mb-2" />
-        <h2 className="text-xl font-bold text-gray-800">{brand.name}</h2>
+      <div className="p-3 sm:p-4 text-center">
+        <img 
+          src={brand.logo} 
+          alt={brand.name} 
+          className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto mb-2 object-contain" 
+        />
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">{brand.name}</h2>
       </div>
     </div>
   );
@@ -38,7 +42,7 @@ const BrandCard: React.FC<{ brand: Brand }> = ({ brand }) => {
 
 const BrandList: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6">
       {brandList.map((brand) => (
         <BrandCard key={brand.id} brand={brand} />
       ))}
