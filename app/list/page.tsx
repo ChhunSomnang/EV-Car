@@ -1,7 +1,7 @@
 // app/list/ListPage.tsx
 "use client";
 
-import React, { useEffect, useCallback, useState, Suspense } from "react";
+import React, { useEffect, useCallback, useState, Suspense, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import { CircularProgress } from "@mui/material";
@@ -18,6 +18,24 @@ import {
 
 import type { Product } from "../lib/features/productSlice";
 
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center min-h-[60vh]">
+    <CircularProgress />
+  </div>
+);
+
+const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
+    <div className="text-red-600 text-xl mb-4">Error loading products: {error}</div>
+    <button 
+      onClick={onRetry} 
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+    >
+      Retry
+    </button>
+  </div>
+);
+
 interface ProductState {
   filteredItems: Product[];
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -28,32 +46,23 @@ interface ProductState {
 
 const SearchParamsWrapper = () => {
   const searchParams = useSearchParams();
-  const brandFromQuery = searchParams?.get("brand");
   const dispatch = useDispatch<AppDispatch>();
-  const { items, selectedMakes } = useSelector(
-    (state: RootState) => ({
-      items: state.products.items,
-      selectedMakes: state.products.selectedMakes
-    })
-  );
+  const { items, selectedMakes } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
-    if (brandFromQuery) {
-      const brandParam = brandFromQuery.toLowerCase().trim();
-      const matchingBrand = items.find((item) => {
-        const itemBrand = (item.brand || "").toLowerCase().trim();
-        return itemBrand === brandParam;
-      });
+    const brandFromQuery = searchParams?.get("brand");
+    if (!brandFromQuery) return;
 
-      const brandToUse = matchingBrand ? matchingBrand.brand : brandFromQuery;
+    const brandParam = brandFromQuery.toLowerCase().trim();
+    const matchingBrand = items.find(item => 
+      (item.brand || "").toLowerCase().trim() === brandParam
+    )?.brand || brandFromQuery;
 
-      if (!selectedMakes.includes(brandToUse)) {
-        const updatedMakes = [...selectedMakes, brandToUse];
-        dispatch(setSelectedMakes(updatedMakes));
-        dispatch(applyFilters());
-      }
+    if (!selectedMakes.includes(matchingBrand)) {
+      dispatch(setSelectedMakes([...selectedMakes, matchingBrand]));
+      dispatch(applyFilters());
     }
-  }, [brandFromQuery, dispatch, items, selectedMakes]);
+  }, [searchParams, dispatch, items, selectedMakes]);
 
   return null;
 };
@@ -81,9 +90,11 @@ const ListPage: React.FC = () => {
     setCurrentPage(1);
   }, [filteredItems.length]);
 
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedProducts = filteredItems.slice(startIndex, endIndex);
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredItems.slice(startIndex, endIndex);
+  }, [currentPage, pageSize, filteredItems]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= Math.ceil(filteredItems.length / pageSize)) {
@@ -92,18 +103,10 @@ const ListPage: React.FC = () => {
   };
 
   if (status === "loading" && filteredItems.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
   if (status === "failed" && error) {
-    return (
-      <div className="text-center mt-20 text-red-600 text-xl">
-        Error loading products: {error}
-      </div>
-    );
+    return <ErrorDisplay error={error} onRetry={() => dispatch(fetchProducts({}))} />;
   }
 
   return (
