@@ -1,7 +1,7 @@
 // app/list/ListPage.tsx
 "use client";
 
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useState, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import { CircularProgress } from "@mui/material";
@@ -26,25 +26,18 @@ interface ProductState {
   error: string | null;
 }
 
-const ListPage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+const SearchParamsWrapper = () => {
   const searchParams = useSearchParams();
   const brandFromQuery = searchParams?.get("brand");
-
-  const { filteredItems, status, items, selectedMakes, error } = useSelector(
-    (state: RootState) => state.products as ProductState
+  const dispatch = useDispatch<AppDispatch>();
+  const { items, selectedMakes } = useSelector(
+    (state: RootState) => ({
+      items: state.products.items,
+      selectedMakes: state.products.selectedMakes
+    })
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-
-  const initializeProducts = useCallback(() => {
-    if (status === "idle" || status === "failed") {
-      dispatch(fetchProducts({}));
-    }
-  }, [dispatch, status]);
-
-  const syncBrandWithUrl = useCallback(() => {
+  useEffect(() => {
     if (brandFromQuery) {
       const brandParam = brandFromQuery.toLowerCase().trim();
       const matchingBrand = items.find((item) => {
@@ -62,23 +55,27 @@ const ListPage: React.FC = () => {
     }
   }, [brandFromQuery, dispatch, items, selectedMakes]);
 
-  const applyProductFilters = useCallback(() => {
-    if (status === "succeeded" && items.length > 0) {
-      dispatch(applyFilters());
+  return null;
+};
+
+const ListPage: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { filteredItems, status, error } = useSelector(
+    (state: RootState) => state.products as ProductState
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const initializeProducts = useCallback(() => {
+    if (status === "idle" || status === "failed") {
+      dispatch(fetchProducts({}));
     }
-  }, [dispatch, status, items.length]);
+  }, [dispatch, status]);
 
   useEffect(() => {
     initializeProducts();
   }, [initializeProducts]);
-
-  useEffect(() => {
-    syncBrandWithUrl();
-  }, [syncBrandWithUrl]);
-
-  useEffect(() => {
-    applyProductFilters();
-  }, [applyProductFilters, selectedMakes]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -94,7 +91,7 @@ const ListPage: React.FC = () => {
     }
   };
 
-  if (status === "loading" && items.length === 0) {
+  if (status === "loading" && filteredItems.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress />
@@ -111,6 +108,9 @@ const ListPage: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen pt-16 sm:pt-20 px-2 sm:px-4 gap-4 lg:gap-6">
+      <Suspense fallback={<div className="w-full text-center">Loading search parameters...</div>}>
+        <SearchParamsWrapper />
+      </Suspense>
       <aside className="w-full lg:w-1/4 xl:w-1/5 p-2 sm:p-4 lg:sticky lg:top-20 lg:self-start bg-white rounded-lg shadow-sm">
         <div className="lg:hidden mb-4 flex justify-between items-center">
           <h2 className="text-lg font-semibold">Filters</h2>
