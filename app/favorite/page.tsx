@@ -158,14 +158,20 @@ const FavoritePage = () => {
               </button>
 
               {/* Product details */}
-              <div className="p-4 flex-grow">
+              <div className="p-4 flex-grow flex flex-col">
                 <Link href={`/product/${product.id}`}>
                   <h2 className="text-lg font-semibold text-gray-800 mb-2 hover:text-blue-600 transition-colors duration-300">
                     {product.title}
                   </h2>
                 </Link>
                 <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-                <p className="text-xl font-bold text-blue-600">${product.price}</p>
+                <p className="text-xl font-bold text-blue-600 mb-4">${product.price}</p>
+                <Link 
+                  href={`/product/${product.id}`}
+                  className="mt-auto bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300 text-center"
+                >
+                  View Details
+                </Link>
               </div>
             </div>
           );
